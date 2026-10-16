@@ -61,7 +61,7 @@ export const HeroConsole = memo(function HeroConsole() {
 
   return (
     <div className="relative rounded-[1.75rem] border border-line bg-surface p-5 shadow-[var(--shadow),var(--edge)] md:p-6">
-      <div className="flex items-center justify-between font-mono text-[11px] text-muted">
+      <div className="flex items-center justify-between font-mono text-[0.6875rem] text-muted">
         <span>portfolio-agent</span>
         <span className="flex items-center gap-2">
           <span className="breathe relative h-1.5 w-1.5 rounded-full bg-mint" />
@@ -78,7 +78,7 @@ export const HeroConsole = memo(function HeroConsole() {
         <div className="skeleton h-1.5 w-full opacity-0 transition-opacity duration-300 group-data-[on=true]:opacity-100" />
       </div>
 
-      <ol ref={stepsRef} className="mt-5 flex flex-wrap gap-1.5 font-mono text-[10.5px]">
+      <ol ref={stepsRef} className="mt-5 flex flex-wrap gap-1.5 font-mono text-[0.65625rem]">
         {STEPS.map((s) => (
           <li
             key={s}

@@ -83,6 +83,7 @@
 
 html {
   overflow-x: clip; /* margin doodles may float past the edge on narrow-but-xl screens */
+  font-size: 100%;
   scroll-behavior: smooth;
   scroll-padding-top: 5rem;
 }
@@ -97,6 +98,18 @@ body {
 
 h1, h2, h3, h4 {
   font-family: var(--font-display);
+}
+
+/* Big monitors: grow the whole layout (type, spacing, max width, art) instead of leaving a
+   laptop-sized column in the middle of a 27" screen. Everything is sized in rem, so it scales together. */
+@media (min-width: 1680px) {
+  html { font-size: 118.75%; }
+}
+@media (min-width: 2200px) {
+  html { font-size: 150%; }
+}
+@media (min-width: 3000px) {
+  html { font-size: 187.5%; }
 }
 
 /* Hand-drawn cursor (hotspot = arrow tip); the "click" version adds sparks over anything clickable. */

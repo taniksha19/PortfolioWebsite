@@ -50,7 +50,7 @@ export function Section({ id, index, title, kicker, children }) {
 
 export function Tag({ children }) {
   return (
-    <span className="rounded-full border border-line bg-surface px-2.5 py-1 font-mono text-[11px] text-muted">
+    <span className="rounded-full border border-line bg-surface px-2.5 py-1 font-mono text-[0.6875rem] text-muted">
       {children}
     </span>
   );

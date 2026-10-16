@@ -38,7 +38,7 @@ function StatusBadge({ health }) {
   };
   const [label, dot, breathing] = map[health.status];
   return (
-    <span className="inline-flex items-center gap-2 font-mono text-[11px] text-muted">
+    <span className="inline-flex items-center gap-2 font-mono text-[0.6875rem] text-muted">
       <span className={`relative h-1.5 w-1.5 rounded-full ${dot} ${breathing ? "breathe" : ""}`} />
       {label}
     </span>
@@ -121,16 +121,16 @@ export function AgentSection() {
         {/* Graph + trace */}
         <div className="border-b border-line p-5 md:p-6 lg:border-r lg:border-b-0">
           <div className="mb-3 flex items-center justify-between">
-            <span className="font-mono text-[11px] tracking-wider text-muted uppercase">Agent graph</span>
+            <span className="font-mono text-[0.6875rem] tracking-wider text-muted uppercase">Agent graph</span>
             <StatusBadge health={health} />
           </div>
           <AgentGraph nodes={nodes} run={run} />
           <div className="mt-4 border-t border-line pt-3">
-            <div className="mb-2 flex justify-between font-mono text-[11px] tracking-wider text-muted uppercase">
+            <div className="mb-2 flex justify-between font-mono text-[0.6875rem] tracking-wider text-muted uppercase">
               <span>Trace</span>
               {run.ms != null && <span>{(run.ms / 1000).toFixed(1)}s total</span>}
             </div>
-            <ol className="min-h-[5.5rem] space-y-1 font-mono text-[11px]">
+            <ol className="min-h-[5.5rem] space-y-1 font-mono text-[0.6875rem]">
               {trace.length === 0 && <li className="text-muted">Each step appears here with its timing.</li>}
               {trace.map((t, i) => (
                 <li key={i} className="trace-line flex gap-2">
@@ -163,7 +163,7 @@ export function AgentSection() {
           <div className="flex items-center gap-4 border-b border-line px-5 py-4 md:px-6">
             <Mascot mood={mascot.mood} size={76} track className="shrink-0" />
             <div className="min-w-0">
-              <p className="font-mono text-[11px] tracking-wider text-muted uppercase">{MASCOT_NAME} · portfolio agent</p>
+              <p className="font-mono text-[0.6875rem] tracking-wider text-muted uppercase">{MASCOT_NAME} · portfolio agent</p>
               <div className="relative mt-1.5 rounded-2xl rounded-tl-md border border-line bg-bg px-3.5 py-2 text-sm">
                 <AnimatePresence mode="wait" initial={false}>
                   <motion.p
@@ -215,7 +215,7 @@ export function AgentSection() {
                     exit={{ opacity: 0 }}
                     className="pl-[42px]"
                   >
-                    <p className="font-mono text-[11px] tracking-wider text-muted uppercase">Ask next</p>
+                    <p className="font-mono text-[0.6875rem] tracking-wider text-muted uppercase">Ask next</p>
                     <div className="mt-2 flex flex-wrap gap-2">
                       {nextPrompts.map((p) => (
                         <button
@@ -251,7 +251,7 @@ export function AgentSection() {
                 transition={spring}
                 className="overflow-hidden border-t border-line"
               >
-                <div className="flex items-center justify-between px-5 py-2 font-mono text-[11px] text-muted md:px-6">
+                <div className="flex items-center justify-between px-5 py-2 font-mono text-[0.6875rem] text-muted md:px-6">
                   <span className="flex items-center gap-2">
                     <span className="h-1.5 w-1.5 rounded-full bg-accent" />
                     {glowCount} matching section{glowCount > 1 ? "s" : ""} highlighted on the page

@@ -10,7 +10,7 @@ function Cite({ id, titles }) {
   return (
     <button
       onClick={() => flashSection(id)}
-      className="mx-0.5 inline-flex translate-y-[-1px] items-center rounded-md border border-line bg-bg px-1.5 py-0.5 align-middle font-mono text-[10px] text-accent transition-all hover:border-accent active:scale-[0.96]"
+      className="mx-0.5 inline-flex translate-y-[-1px] items-center rounded-md border border-line bg-bg px-1.5 py-0.5 align-middle font-mono text-[0.625rem] text-accent transition-all hover:border-accent active:scale-[0.96]"
       title="Show this section on the page"
     >
       {titles[id] || id}
@@ -43,7 +43,7 @@ function RelevanceCard({ m }) {
   return (
     <div className="space-y-4">
       <div>
-        <p className="font-mono text-[11px] tracking-wider text-accent uppercase">Where to look · {m.role_title}</p>
+        <p className="font-mono text-[0.6875rem] tracking-wider text-accent uppercase">Where to look · {m.role_title}</p>
         <p className="mt-2 leading-relaxed">{m.summary}</p>
       </div>
       {covered.length > 0 && (
@@ -66,7 +66,7 @@ function RelevanceCard({ m }) {
       )}
       {notShown.length > 0 && (
         <p className="text-sm text-muted">
-          <span className="font-mono text-[11px] tracking-wider uppercase">Not shown in the portfolio: </span>
+          <span className="font-mono text-[0.6875rem] tracking-wider uppercase">Not shown in the portfolio: </span>
           {notShown.map((i) => i.requirement).join("; ")}
         </p>
       )}
@@ -88,7 +88,7 @@ function EmailCard({ m }) {
   };
   return (
     <div className="space-y-3">
-      <p className="font-mono text-[11px] uppercase tracking-wider text-accent">Draft email · to {m.to}</p>
+      <p className="font-mono text-[0.6875rem] uppercase tracking-wider text-accent">Draft email · to {m.to}</p>
       <div className="rounded-xl border border-line bg-bg p-4 text-sm">
         <p className="font-medium">{m.subject}</p>
         <p className="mt-3 whitespace-pre-wrap leading-relaxed text-muted">{m.body}</p>

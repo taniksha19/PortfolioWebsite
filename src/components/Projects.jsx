@@ -36,7 +36,7 @@ function ProjectCard({ p, onOpen }) {
         style={{ borderRadius: 24 }}
       >
         <div className="flex items-start justify-between gap-3">
-          <motion.p layoutId={`kind-${p.id}`} className="font-mono text-[11px] text-accent">
+          <motion.p layoutId={`kind-${p.id}`} className="font-mono text-[0.6875rem] text-accent">
             {p.kind}
           </motion.p>
           <ArrowsOutSimpleIcon size={16} className="shrink-0 text-muted transition-all duration-300 group-hover:scale-110 group-hover:text-accent" />
@@ -267,11 +267,11 @@ export function Projects() {
                 >
                   <div className="min-w-0">
                     <h4 className="truncate font-semibold tracking-tight transition-colors group-hover:text-accent">{p.title}</h4>
-                    <p className="font-mono text-[11px] text-accent">{p.kind}</p>
+                    <p className="font-mono text-[0.6875rem] text-accent">{p.kind}</p>
                   </div>
                   <div className="min-w-0">
                     <p className="truncate text-sm text-muted md:text-ink">{p.summary}</p>
-                    <p className="mt-0.5 truncate font-mono text-[11px] text-muted">{p.stack.join(" · ")}</p>
+                    <p className="mt-0.5 truncate font-mono text-[0.6875rem] text-muted">{p.stack.join(" · ")}</p>
                   </div>
                   <ArrowUpRightIcon
                     size={16}

@@ -96,11 +96,9 @@ export const Mascot = memo(function Mascot({ mood = "idle", size = 64, track = f
   return (
     <motion.svg
       viewBox="0 0 124 100"
-      width={size}
-      height={(size * 100) / 124}
+      style={{ originY: 1, width: `${size / 16}rem`, height: `${(size * 100) / 124 / 16}rem` }}
       className={`overflow-visible ${className}`}
       animate={reduce || still ? undefined : float[mood] || float.idle}
-      style={{ originY: 1 }}
       role="img"
       aria-label={`${MASCOT_NAME}, feeling ${mood}`}
     >
