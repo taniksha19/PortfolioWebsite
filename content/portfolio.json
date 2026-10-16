@@ -1,0 +1,340 @@
+{
+  "profile": {
+    "name": "Taniksha Datar",
+    "role": "AI Engineer",
+    "focus": [
+      "LLM Systems",
+      "RAG",
+      "MLOps"
+    ],
+    "location": "Boston, MA",
+    "email": "datar.t@northeastern.edu",
+    "linkedin": "https://linkedin.com/in/taniksha-datar",
+    "github": "https://github.com/taniksha19",
+    "resume": "/resume.pdf",
+    "intro": "I build production LLM systems: multi-agent architectures, retrieval that cites its sources, and the evaluation and MLOps plumbing that keeps them honest after launch."
+  },
+  "about": {
+    "id": "about",
+    "intro": "I’m Taniksha, an AI enthusiast who loves building with AI. I moved from Pune to Boston for my master’s at Northeastern, and getting here came with a few firsts.",
+    "journey": {
+      "from": "Pune",
+      "to": "Boston",
+      "caption": "My first ever flight"
+    },
+    "firsts": [
+      "My first ever flight: Pune to Boston",
+      "First in my family to earn a degree",
+      "First in my family to move abroad for education"
+    ],
+    "interests": [
+      {
+        "id": "building",
+        "title": "Building with AI",
+        "text": "Agents, retrieval and whatever I’m prototyping next.",
+        "art": "laptop",
+        "keywords": "hobby, side projects, AI, agents, coding, laptop"
+      },
+      {
+        "id": "reading",
+        "title": "Reading",
+        "text": "Mostly fiction.",
+        "art": "book",
+        "keywords": "books, novels, fiction, favorite reads"
+      },
+      {
+        "id": "music",
+        "title": "On repeat",
+        "text": "Pop, R&B and rock.",
+        "art": "headphones",
+        "keywords": "music, songs, artists, genres, listening, playlist"
+      },
+      {
+        "id": "puzzles",
+        "title": "Jigsaw puzzles",
+        "text": "My newest hobby, one piece at a time.",
+        "art": "puzzle",
+        "keywords": "hobby, hobbies, puzzles, games, free time"
+      }
+    ],
+    "keywords": "hometown, where from, grew up, background, journey, family, moved, relocated, India, personal"
+  },
+  "experience": [
+    {
+      "id": "exp-bevi",
+      "company": "Bevi",
+      "role": "Data Science Co-op",
+      "period": "Jan 2026 – Sept 2026",
+      "location": "Boston, MA",
+      "points": [
+        "Built an incremental dbt pipeline on Snowflake Cortex (Llama 3.1-405B) that turns 100K+ tickets and IoT alerts into repair histories for 36K+ machines, served in Slack by its own ADK agent at ~95% lower cost and 10 min → 10 sec lookup.",
+        "Shipped the first knowledge retrieval agent on a Google ADK / Gemini 2.5 Flash multi-agent architecture, grounded in a Vertex AI Search index over internal SOPs with citations and abstention. It is now the template for new agents.",
+        "Modeled operational data as Snowflake semantic views served through a Snowflake agent, wrapped in a custom MCP server registered as a tool for natural-language queries over machine data.",
+        "Built a layered evaluation harness: a retrieval regression suite plus a custom Vertex AI judge metric that scores answer correctness on every release."
+      ],
+      "tags": [
+        "Google ADK",
+        "Gemini",
+        "Vertex AI Search",
+        "Snowflake Cortex",
+        "dbt",
+        "MCP"
+      ]
+    },
+    {
+      "id": "exp-reverie",
+      "company": "Reverie Language Technologies",
+      "role": "Machine Learning Intern",
+      "period": "Sept 2023 – Apr 2024",
+      "location": "Remote",
+      "points": [
+        "Raised paraphrase quality by up to 22% (ROUGE-L / BLEU / METEOR) with domain-adaptive HuggingFace fine-tuning.",
+        "Curated 100K+ Hindi sentences using semantic similarity and POS tagging to improve training data quality.",
+        "Cut training time 20% by optimizing PyTorch training and batching; deployed with Docker, MLflow and GitHub Actions."
+      ],
+      "tags": [
+        "PyTorch",
+        "HuggingFace",
+        "MLflow",
+        "Docker"
+      ]
+    },
+    {
+      "id": "exp-pune",
+      "company": "Pune Institute of Computer Technology",
+      "role": "Research Assistant",
+      "period": "Jan 2023 – Jun 2023",
+      "location": "Pune, India",
+      "points": [
+        "Built financial sentiment models (SVM, LSTM, BERT) reaching 89% accuracy and 86% F1.",
+        "Scraped and processed 20K+ financial articles with BeautifulSoup and Selenium into domain-specific NLP datasets.",
+        "Delivered the pipeline end to end, from EDA to a FastAPI deployment."
+      ],
+      "tags": [
+        "BERT",
+        "TensorFlow",
+        "scikit-learn",
+        "FastAPI"
+      ]
+    }
+  ],
+  "projects": [
+    {
+      "id": "proj-break-the-bot",
+      "title": "Break The Bot",
+      "kind": "LLM Safety Evaluation Pipeline",
+      "summary": "An automated red-teaming pipeline that throws adversarial prompts at 10+ models and scores the responses with an LLM-as-a-Judge.",
+      "points": [
+        "Orchestrated on Google Cloud Composer (Airflow) with Terraform-provisioned infrastructure and DVC-versioned datasets.",
+        "LLM-as-a-Judge with Groq (Llama 3.3) scoring adversarial responses across 10+ models.",
+        "Great Expectations data-quality gates for fail-fast runs and drift detection.",
+        "Metrics served by a FastAPI service on Cloud Run (Cloud Build CI/CD) into a live Streamlit dashboard."
+      ],
+      "stack": [
+        "GCP",
+        "Airflow",
+        "Groq",
+        "DVC",
+        "Terraform",
+        "FastAPI",
+        "Streamlit"
+      ],
+      "link": "https://github.com/yashichawla/MLOps-Project",
+      "tier": "featured"
+    },
+    {
+      "id": "proj-multilingual-text-detoxification",
+      "tier": "featured",
+      "title": "Multilingual Text Detoxification",
+      "kind": "NLP · PAN 2024 shared task",
+      "summary": "Rewrites toxic text into neutral text that keeps the original meaning, across 8 languages, comparing lexicon, unsupervised and fine-tuned approaches.",
+      "points": [
+        "Baselines (duplicate, lexicon delete) plus an unsupervised mask-and-fill method: log-odds ratio finds toxic tokens, mBERT / XLM-RoBERTa fills them.",
+        "Fine-tuned MT0-Large with LoRA adapters on parallel toxic–neutral pairs from multilingual ParaDetox.",
+        "Scored toxicity, semantic similarity and fluency per language: English toxicity dropped 0.61 with mask-and-fill and 0.33 with MT0-LoRA.",
+        "Showed low-resource languages (Amharic, Chinese) remain hard, with minimal toxicity reduction."
+      ],
+      "stack": [
+        "Python",
+        "HuggingFace",
+        "MT0 + LoRA",
+        "XLM-RoBERTa",
+        "mBERT"
+      ],
+      "link": "https://github.com/taniksha19/NLP-Project"
+    },
+    {
+      "id": "proj-stack-overflow-auto-tagging",
+      "title": "Stack Overflow Auto-Tagging",
+      "kind": "ML / NLP",
+      "summary": "Multi-label tag prediction on 100K+ questions, comparing a from-scratch probabilistic model against modern transformers.",
+      "points": [
+        "Hidden Markov Model written from scratch with Viterbi decoding: 68.4% micro-F1.",
+        "Benchmarked against Logistic Regression and DistilBERT baselines.",
+        "Fine-tuned DistilBERT reached 85% micro-F1."
+      ],
+      "stack": [
+        "Python",
+        "HMM",
+        "scikit-learn",
+        "Transformers"
+      ],
+      "link": "https://github.com/isakshay007/StackOverflow_Tagging_System",
+      "tier": "featured"
+    },
+    {
+      "id": "proj-spotify-recommendation-system",
+      "tier": "featured",
+      "title": "Spotify Recommendation System",
+      "kind": "ML · Personal listening data",
+      "summary": "Predicts which tracks belong in my favorites, using my own Spotify streaming history and each track's audio features.",
+      "points": [
+        "Pulled streaming history and recovered track IDs through the Spotify Web API, caching IDs to avoid repeat calls.",
+        "Built features from audio attributes such as danceability, energy, tempo, acousticness and valence.",
+        "Balanced the classes with SMOTE and compared Logistic Regression, Decision Tree and Random Forest classifiers with grid-search tuning."
+      ],
+      "stack": [
+        "Python",
+        "Spotify Web API",
+        "pandas",
+        "scikit-learn",
+        "SMOTE"
+      ],
+      "link": "https://github.com/taniksha19/SpotifyRecommendationSystem"
+    },
+    {
+      "id": "proj-freelancer-client-platform",
+      "tier": "more",
+      "title": "Freelancer–Client Platform",
+      "kind": "Full stack",
+      "summary": "A marketplace where clients post jobs and freelancers apply, with contracts, reviews and payments.",
+      "points": [
+        "Node.js / Express API with 20+ endpoints for job search, applications, skills, contracts and reviews.",
+        "MySQL schema of 10 related tables covering clients, freelancers, jobs, skills, contracts, reviews and payments.",
+        "Passwords hashed with bcrypt."
+      ],
+      "stack": [
+        "Node.js",
+        "Express",
+        "MySQL",
+        "bcrypt"
+      ],
+      "link": "https://github.com/taniksha19/Freelancer-Client-Platform"
+    },
+    {
+      "id": "proj-image-transformer-application",
+      "tier": "more",
+      "title": "Image Transformer Application",
+      "kind": "Java · Software design",
+      "summary": "A command-driven image processor with filters (sepia, blur, sharpen), RGB / luma / intensity components and flips.",
+      "points": [
+        "MVC architecture with the command pattern, so new transformations plug in as new commands.",
+        "Script files drive batch processing of images end to end."
+      ],
+      "stack": [
+        "Java",
+        "MVC",
+        "Command pattern"
+      ],
+      "link": "https://github.com/taniksha19/Image-Transformer-Application"
+    },
+    {
+      "id": "proj-test-drive-management-system",
+      "tier": "more",
+      "title": "Test Drive Management System",
+      "kind": "Full stack · DBMS",
+      "summary": "Replaces a dealership's handwritten register: customers book test drives, managers assign executives and track every drive.",
+      "points": [
+        "Customer and manager roles: booking by date, time slot and model; availability checks; confirming, closing and reviewing past drives.",
+        "React frontend with a Node.js / Express API over MySQL."
+      ],
+      "stack": [
+        "React",
+        "Node.js",
+        "Express",
+        "MySQL"
+      ],
+      "link": "https://github.com/taniksha19/TestDrive"
+    }
+  ],
+  "skills": [
+    {
+      "id": "skills-languages",
+      "group": "Languages",
+      "items": [
+        "Python",
+        "SQL",
+        "Java",
+        "C++"
+      ]
+    },
+    {
+      "id": "skills-ml-genai",
+      "group": "ML & GenAI",
+      "items": [
+        "PyTorch",
+        "TensorFlow",
+        "HuggingFace Transformers",
+        "LangChain",
+        "Google ADK",
+        "MCP",
+        "Agent orchestration",
+        "RAG",
+        "Vertex AI Search",
+        "Gemini",
+        "scikit-learn",
+        "FAISS",
+        "LLM evaluation",
+        "Prompt engineering"
+      ]
+    },
+    {
+      "id": "skills-mlops-cloud",
+      "group": "MLOps & Cloud",
+      "items": [
+        "GCP (Vertex AI, Cloud Run, Composer, Cloud Build)",
+        "AWS (EC2, S3)",
+        "Docker",
+        "Terraform",
+        "MLflow",
+        "DVC",
+        "GitHub Actions",
+        "FastAPI",
+        "Snowflake",
+        "Snowflake Cortex",
+        "dbt"
+      ]
+    },
+    {
+      "id": "skills-data-tools",
+      "group": "Data & Tools",
+      "items": [
+        "Pandas",
+        "NumPy",
+        "Streamlit",
+        "Looker",
+        "Git",
+        "Selenium",
+        "BeautifulSoup"
+      ]
+    }
+  ],
+  "education": [
+    {
+      "id": "edu-northeastern",
+      "school": "Northeastern University",
+      "degree": "M.S. Computer Science",
+      "period": "Expected Dec 2026",
+      "location": "Boston, MA",
+      "detail": "GPA 3.84 · DBMS, Algorithms, AI, Cloud Computing, MLOps, NLP"
+    },
+    {
+      "id": "edu-savitribai",
+      "school": "Savitribai Phule Pune University",
+      "degree": "B.E. Computer Engineering",
+      "period": "2020 – 2024",
+      "location": "Pune, India",
+      "detail": "GPA 3.70 · Data Structures, OOP, Machine Learning, Computer Networks"
+    }
+  ]
+}

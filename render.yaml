@@ -1,0 +1,38 @@
+# Render Blueprint: the website (static site, never sleeps) and Nimbus's API (free web service,
+# sleeps after 15 idle minutes). New → Blueprint → pick this repo; Render creates both.
+services:
+  # Nimbus: FastAPI + LangGraph
+  - type: web
+    name: taniksha-portfolio-agent
+    runtime: python
+    plan: free
+    buildCommand: pip install -r backend/requirements.txt
+    startCommand: uvicorn app.main:app --app-dir backend --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: GROQ_API_KEY # primary model, free tier: https://console.groq.com/keys
+        sync: false
+      - key: OPENROUTER_API_KEY # automatic backup (uses a free model): https://openrouter.ai/keys
+        sync: false
+      - key: ALLOWED_ORIGINS # the website's URL once it exists, e.g. https://taniksha-portfolio.onrender.com
+        sync: false
+
+  # The website: Vite build served from Render's CDN
+  - type: web
+    name: taniksha-portfolio
+    runtime: static
+    buildCommand: npm ci && npm run build
+    staticPublishPath: dist
+    headers:
+      - path: /assets/*
+        name: Cache-Control
+        value: public, max-age=31536000, immutable
+    envVars:
+      # The API's public URL, filled in from the service above at build time.
+      - key: VITE_AGENT_URL
+        fromService:
+          type: web
+          name: taniksha-portfolio-agent
+          envVarKey: RENDER_EXTERNAL_URL

@@ -1,5 +1,5 @@
 {
-  "name": "beautiful-portfolio",
+  "name": "taniksha-portfolio",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -10,15 +10,11 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@radix-ui/react-toast": "^1.2.10",
+    "@phosphor-icons/react": "^2.1.10",
     "@tailwindcss/vite": "^4.1.4",
-    "class-variance-authority": "^0.7.1",
-    "clsx": "^2.1.1",
-    "lucide-react": "^0.501.0",
+    "framer-motion": "^14.0.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-router-dom": "^7.5.1",
-    "tailwind-merge": "^3.2.0",
     "tailwindcss": "^4.1.4"
   },
   "devDependencies": {
