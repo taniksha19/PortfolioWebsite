@@ -2,11 +2,11 @@ import { memo, useEffect } from "react";
 import { motion, useMotionValue, useReducedMotion, useSpring, useTransform } from "framer-motion";
 
 // Fixed positions (percent of viewport) so the sky looks the same on every visit.
+// Kept sparse on purpose: a light texture, spread around the edges, not confetti.
 const SPARKLES = [
-  [8, 14, 16, 0], [22, 72, 11, 1.2], [35, 28, 18, 2.6], [48, 86, 12, 0.6], [57, 9, 14, 3.1],
-  [66, 54, 10, 1.8], [74, 22, 17, 0.3], [83, 78, 12, 2.2], [91, 40, 15, 3.6], [14, 46, 10, 2.9],
-  [41, 61, 9, 1.5], [62, 92, 14, 0.9], [88, 8, 11, 2.4], [4, 88, 14, 3.3], [29, 4, 11, 1.1],
-  [52, 38, 8, 2.0], [96, 66, 10, 0.4], [18, 96, 12, 2.7],
+  [8, 14, 16, 0], [57, 9, 14, 3.1], [74, 22, 17, 0.3],
+  [14, 46, 10, 2.9], [91, 40, 15, 3.6], [22, 72, 11, 1.2],
+  [83, 78, 12, 2.2], [48, 86, 12, 0.6], [4, 88, 14, 3.3],
 ];
 const SPARKLE_COLORS = ["var(--sparkle)", "var(--sparkle-pink)", "var(--sparkle)", "var(--mint)"];
 
