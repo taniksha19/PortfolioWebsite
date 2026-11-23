@@ -35,8 +35,8 @@ export default function FunMode({ onExit }) {
             Taniksha Datar <span>· AI Engineer</span>
           </div>
           <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
-            <button className="snd" id="labels" aria-pressed="true">
-              Labels on
+            <button className="snd" id="labels" aria-pressed="false">
+              Labels off
             </button>
             <button className="snd" id="sound" aria-pressed="false">
               ♪ Sound off

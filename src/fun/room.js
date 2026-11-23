@@ -236,15 +236,15 @@ for (let i = 0; i < 12; i++) { const x = 0.35 + i * 0.11, y = 2.46 - Math.sin(i 
 /* ---------------- desk ---------------- */
 const DESK_Y = 0.78;
 const woodTex = canvasTex(1024, 256, (g, w, h) => {
-  g.fillStyle = "#a7754f"; g.fillRect(0, 0, w, h);
-  for (let i = 0; i < 140; i++) { const y = Math.random() * h, a = Math.random() * .12; g.strokeStyle = Math.random() < .5 ? `rgba(90,50,25,${a})` : `rgba(255,220,170,${a * .7})`; g.lineWidth = 1 + Math.random() * 2.5;
+  g.fillStyle = "#f7f3ef"; g.fillRect(0, 0, w, h);
+  for (let i = 0; i < 140; i++) { const y = Math.random() * h, a = Math.random() * .12; g.strokeStyle = Math.random() < .5 ? `rgba(150,125,110,${a * .35})` : `rgba(255,255,255,${a * .8})`; g.lineWidth = 1 + Math.random() * 2.5;
     g.beginPath(); g.moveTo(0, y); for (let x = 0; x <= w; x += 32) g.lineTo(x, y + Math.sin(x / 90 + i) * 3 + Math.sin(x / 23 + i * 2) * 1.2); g.stroke(); }
-  for (let k = 0; k < 3; k++) { const cx = 150 + k * 340 + Math.random() * 60, cy = 60 + Math.random() * 140; for (let r = 4; r < 30; r += 4) { g.strokeStyle = "rgba(80,45,20,.12)"; g.beginPath(); g.ellipse(cx, cy, r * 2.2, r * .7, 0, 0, 7); g.stroke(); } }
+  for (let k = 0; k < 3; k++) { const cx = 150 + k * 340 + Math.random() * 60, cy = 60 + Math.random() * 140; for (let r = 4; r < 30; r += 4) { g.strokeStyle = "rgba(150,125,110,.05)"; g.beginPath(); g.ellipse(cx, cy, r * 2.2, r * .7, 0, 0, 7); g.stroke(); } }
 });
 const wood = mat("#ffffff", { roughness: .6, map: woodTex, envMapIntensity: .3 });
 const deskTop = box(2.6, 0.06, 0.9, wood, 0.015); deskTop.position.set(0.35, DESK_Y - 0.03, -2.02); room.add(deskTop);
 [[-0.88, -2.38], [1.58, -2.38], [-0.88, -1.66], [1.58, -1.66]].forEach(([x, z]) => { const l = box(0.06, DESK_Y - 0.06, 0.06, wood, 0.01); l.position.set(x, (DESK_Y - 0.06) / 2, z); room.add(l); });
-const drawer = box(0.6, 0.18, 0.04, mat("#9a6a47"), .01); drawer.position.set(1.15, DESK_Y - 0.15, -1.6); room.add(drawer);
+const drawer = box(0.6, 0.18, 0.04, mat("#f3eee9"), .01); drawer.position.set(1.15, DESK_Y - 0.15, -1.6); room.add(drawer);
 const knob = sph(.015, mat("#e8c47c", { metalness: .5, roughness: .3 })); knob.position.set(1.15, DESK_Y - 0.15, -1.575); room.add(knob);
 const deskMat = box(1.0, 0.006, 0.5, mat("#e6dcf7"), 0.003); deskMat.position.set(0.25, DESK_Y + 0.003, -1.92); room.add(deskMat);
 
@@ -445,7 +445,7 @@ const clipboard = new THREE.Group(), clipLean = new THREE.Group();
 const cbBoard = box(.19, .26, .008, mat("#b98a5e", { roughness: .7 }), .006); cbBoard.position.y = .13; clipLean.add(cbBoard);
 const cbSheet = new THREE.Mesh(new THREE.PlaneGeometry(.17, .225), mat("#fff", { map: resTex, roughness: .8 })); cbSheet.position.set(0, .12, .0045); clipLean.add(cbSheet);
 const cbClamp = box(.08, .025, .014, mat("#d9d4e6", { metalness: .6, roughness: .3, envMapIntensity: .8 }), .004); cbClamp.position.set(0, .248, .008); clipLean.add(cbClamp);
-clipLean.rotation.x = -.18; clipboard.add(clipLean); clipboard.position.set(0.8, DESK_Y, -2.4); clipboard.rotation.y = -.12; clipboard.scale.setScalar(1.1); room.add(clipboard);
+clipLean.rotation.x = -.18; clipboard.add(clipLean); clipboard.position.set(0.8, DESK_Y, -2.4); clipboard.rotation.y = -.12; clipboard.scale.setScalar(1.45); room.add(clipboard);
 register(clipboard, "resume", "résumé", (it, t) => { clipLean.rotation.x = -.18 + t * .14; clipboard.position.y = DESK_Y + t * .02; });
 
 /* envelope leaning on the books -> contact; the flap opens and a letter peeks out */
@@ -600,6 +600,25 @@ function activate(it) {
   open(it.kind);
 }
 
+/* ---------------- the real résumé PDF ---------------- */
+let pdfDoc = null;
+function loadResumePdf() {
+  if (!pdfDoc) pdfDoc = Promise.all([import("pdfjs-dist"), import("pdfjs-dist/build/pdf.worker.min.mjs?url")])
+    .then(([lib, worker]) => { lib.GlobalWorkerOptions.workerSrc = worker.default; return lib.getDocument(data.resume).promise; })
+    .catch((e) => { pdfDoc = null; throw e; });
+  return pdfDoc;
+}
+async function paintClipboard() {
+  try {
+    const doc = await loadResumePdf(); if (disposed) return;
+    const page = await doc.getPage(1), W = 512, H = Math.round(W * .225 / .17), vp = page.getViewport({ scale: W / page.getViewport({ scale: 1 }).width });
+    const c = document.createElement("canvas"); c.width = W; c.height = H; const g = c.getContext("2d"); g.fillStyle = "#fff"; g.fillRect(0, 0, W, H);
+    await page.render({ canvasContext: g, viewport: vp }).promise; if (disposed) return;
+    const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; cbSheet.material.map = t; cbSheet.material.needsUpdate = true; resTex.dispose();
+  } catch (e) { console.warn("résumé preview unavailable:", e); }
+}
+cleanups.push(() => { if (pdfDoc) pdfDoc.then((d) => d.destroy()).catch(() => {}); });
+
 /* ---------------- views ---------------- */
 const view = $("#view"), vbody = $("#view-body");
 /* résumé download */
@@ -642,8 +661,8 @@ $("#mode-fun").onclick = () => toast("You're already in fun mode.");
 const chips = (a) => `<div class="chips">${a.map((x) => `<span class="chip">${esc(x)}</span>`).join("")}</div>`;
 const VIEWS = {
   laptop: {
-    html: () => `<div class="card"><div class="osbar"><span>taniksha.os</span><span>${esc(screenTime)}</span></div>
-      <div class="apps">${D.projects.map((p, i) => `<button class="app${p.game ? " game" : ""}" data-i="${i}"><i>${esc(p.ab)}</i>${esc(p.t)}</button>`).join("")}</div></div><div class="card" id="detail"></div>`,
+    html: () => `<div class="os"><div class="osbar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span>taniksha.os · projects</span><span>${esc(screenTime)}</span></div>
+      <div class="osbody"><div class="apps">${D.projects.map((p, i) => `<button class="app${p.game ? " game" : ""}" data-i="${i}"><i>${esc(p.ab)}</i><span>${esc(p.t)}</span></button>`).join("")}</div><div class="detail" id="detail" aria-live="polite"></div></div></div>`,
     init() {
       const show = (i) => { root.querySelectorAll(".app").forEach((a) => a.setAttribute("aria-current", a.dataset.i == i)); const p = D.projects[i];
         $("#detail").innerHTML = `<div class="kind">${esc(p.k)}</div><h3>${esc(p.t)}</h3><p>${esc(p.s)}</p><ul class="pts">${p.p.map((x) => `<li>${esc(x)}</li>`).join("")}</ul>${chips(p.st)}${p.link ? `<p style="margin-top:12px"><a class="btn ghost" href="${esc(p.link)}" target="_blank" rel="noopener">View the code</a></p>` : ""}${p.game ? `<p style="margin-top:14px"><button class="btn" id="toGame">Play the Break the Bot mini-game →</button></p>` : ""}`; if (p.game) $("#toGame").onclick = () => switchTo("games"); };
@@ -655,7 +674,7 @@ const VIEWS = {
       <div class="edu"><h3>Savitribai Phule Pune University</h3><div>B.E. Computer Engineering · 2020 – 2024</div><div class="muted">GPA 3.70 · Machine Learning, Data Structures, OOP</div></div></div>
       <div class="page"><div class="hand">things I'm good at</div>${Object.entries(D.skills).map(([g, s]) => `<div class="skillgrp"><b>${esc(g)}</b><div>${esc(s)}</div></div>`).join("")}</div></div>` },
   album: {
-    html: () => `<div class="album"><div class="cover">Taniksha<br>Work in Progress<br><span style="font-weight:400;font-size:.85rem">(Deluxe Edition)</span></div>
+    html: () => `<div class="album"><div class="sleeve"><div class="vinyl" aria-hidden="true"></div><div class="cover">Taniksha<br>Work in Progress<br><span style="font-weight:400;font-size:.85rem">(Deluxe Edition)</span></div></div>
       <div class="tracks"><div class="hand" style="margin:0 10px 6px">now playing</div>${D.jobs.map((j, i) => `<div><button class="track" aria-expanded="${i === 0}"><span class="n">${String(i + 1).padStart(2, "0")}</span><span><b>${esc(j.t)}</b><br><span class="co">${esc(j.c)}</span></span><span class="len">${esc(j.d)}</span></button><div class="liner" ${i === 0 ? "" : "hidden"}><ul class="pts">${j.p.map((x) => `<li>${esc(x)}</li>`).join("")}</ul></div></div>`).join("")}
       <p style="margin:12px 10px 0;font-size:.85rem;color:#b9b0d6">On repeat when I'm not working: pop, R&amp;B and rock.</p></div></div>`,
     init() { root.querySelectorAll(".track").forEach((t) => (t.onclick = () => { const on = t.getAttribute("aria-expanded") !== "true"; t.setAttribute("aria-expanded", on); t.nextElementSibling.hidden = !on; })); }
@@ -663,30 +682,42 @@ const VIEWS = {
   journey: { html: () => `<div class="pc"><div><div class="hand">Greetings from Boston!</div>
       <div class="route">Pune <svg viewBox="0 0 100 24" preserveAspectRatio="none" aria-hidden="true"><path d="M2 18 Q50 -6 98 18" fill="none" stroke="#7357c9" stroke-width="2" stroke-dasharray="4 4"/></svg> Boston</div>
       <p class="muted">I moved from Pune to Boston for my master's at Northeastern, and getting here came with a few firsts.</p></div>
-      <div><div class="hand" style="font-size:1.35rem">a few firsts</div><ul class="pts"><li>My first ever flight: Pune to Boston</li><li>First in my family to earn a degree</li><li>First in my family to move abroad for education</li></ul>
-      <div class="placeholder">Your own photos can replace the drawn polaroids on the board.</div></div></div>
+      <div><div class="hand" style="font-size:1.35rem">a few firsts</div><ul class="pts"><li>My first ever flight: Pune to Boston</li><li>First in my family to earn a degree</li><li>First in my family to move abroad for education</li></ul></div></div>
       <div class="pols">${polaroids.map((p, i) => `<img src="${p.img.toDataURL()}" alt="Polaroid: ${esc(p.cap)}" style="--r:${(i - 1) * 4}deg;--d:${i * 90}ms">`).join("")}</div>` },
-  about: { html: () => `<div class="card aboutc"><img src="${avatarURL}" alt="Illustration of Taniksha" width="180" height="290"><div><div class="hand">Hi, I'm Taniksha.</div><h3 style="margin-top:6px">AI engineer building production LLM systems</h3>
+  about: { html: () => `<div class="card aboutc"><figure class="aphoto">${photoImg.naturalWidth ? `<img src="${assetBase}desk/me.jpg" alt="Taniksha smiling outdoors in winter" width="400" height="400">` : `<img src="${avatarURL}" alt="Illustration of Taniksha" width="180" height="290">`}<figcaption>Boston, MA</figcaption></figure><div><div class="hand">Hi, I'm Taniksha.</div><h3 style="margin-top:6px">AI engineer building production LLM systems</h3>
       <p>I build multi-agent architectures, retrieval that cites its sources, and the evaluation and MLOps plumbing that keeps them honest after launch. I'm finishing my M.S. in Computer Science at Northeastern in December 2026.</p>
       <p class="muted">Based in Boston, MA. Originally from Pune, India.</p>
-      <div class="placeholder">Placeholder: this is your illustrated avatar. Send a real photo and it goes in the frame.</div></div></div>` },
-  now: { html: () => `<div class="card"><div class="hand">right now</div><ul class="nowlist">
+      <div class="contact-row"><button class="btn" id="abRes">See my résumé</button><button class="btn ghost" id="abNow">What I'm up to</button></div></div></div>`,
+    init() { $("#abRes").onclick = () => switchTo("resume"); $("#abNow").onclick = () => switchTo("now"); } },
+  now: { html: () => `<div class="card"><div class="nowtop"><div class="hand">right now</div><span class="status"><i></i>Open to AI roles</span></div><ul class="nowlist">
       <li><span>🎓</span>Finishing my M.S. in Computer Science at Northeastern, graduating December 2026.</li>
       <li><span>✨</span>Open to AI engineering roles: LLM systems, RAG, agents and MLOps.</li>
       <li><span>📍</span>Boston, MA.</li>
       <li><span>⏮</span>Most recently a Data Science Co-op at Bevi (Jan – Sep 2026), shipping production agents.</li></ul>
       <div class="contact-row"><button class="btn" id="nowResume">See my résumé</button><button class="btn ghost" id="nowContact">Get in touch</button></div></div>`,
     init() { $("#nowResume").onclick = () => switchTo("resume"); $("#nowContact").onclick = () => switchTo("contact"); } },
-  resume: { html: () => `<div class="card resume"><div class="rhead"><div><div class="hand">résumé</div><h3>Taniksha Datar</h3><div class="muted">AI Engineer · LLM Systems · RAG · MLOps</div></div>
-      <button class="btn dlres">Download PDF</button></div>
-      <div class="rsec"><b>Experience</b>${D.jobs.map((j) => `<div class="rrow"><span><b>${esc(j.t)}</b> · ${esc(j.c)}</span><span class="muted">${esc(j.d)}</span></div>`).join("")}</div>
-      <div class="rsec"><b>Education</b><div class="rrow"><span><b>M.S. Computer Science</b> · Northeastern University · GPA 3.84</span><span class="muted">Dec 2026</span></div><div class="rrow"><span><b>B.E. Computer Engineering</b> · Savitribai Phule Pune University · GPA 3.70</span><span class="muted">2020 – 2024</span></div></div>
-      <div class="rsec"><b>Selected projects</b>${D.projects.slice(0, 3).map((p) => `<div class="rrow"><span><b>${esc(p.t)}</b> · ${esc(p.k)}</span></div>`).join("")}</div>
-      <div class="rsec"><b>Skills</b>${Object.entries(D.skills).map(([g, x]) => `<div class="rrow"><span><b>${esc(g)}:</b> ${esc(x)}</span></div>`).join("")}</div></div>` },
-  games: { html: () => `<div class="card"><div class="hand">mini-games</div><p class="muted" style="margin:6px 0 14px">Finish my puzzle, then try to break my bot.</p>
+  resume: { html: () => `<div class="rdoc"><div class="rbar"><div><div class="hand">résumé</div><div class="muted">Taniksha Datar · AI Engineer</div></div>
+      <div class="rbtns"><a class="btn ghost" href="${esc(data.resume)}" target="_blank" rel="noopener">Open in new tab</a><button class="btn dlres">Download PDF</button></div></div>
+      <p class="rhint">Pinch to zoom, or open it in a new tab.</p><div class="rpages" id="rpages"><div class="rload">Unclipping the résumé…</div></div></div>`,
+    async init() {
+      const box = $("#rpages");
+      try {
+        const doc = await loadResumePdf(); if (!box.isConnected) return;
+        box.innerHTML = ""; const cssW = box.clientWidth, dpr = Math.max(Math.min(window.devicePixelRatio || 1, 2), 1600 / cssW); // small screens render extra pixels so pinch-zoom stays sharp
+        for (let i = 1; i <= doc.numPages; i++) {
+          const page = await doc.getPage(i); if (!box.isConnected) return;
+          const vp = page.getViewport({ scale: cssW / page.getViewport({ scale: 1 }).width * dpr });
+          const c = document.createElement("canvas"); c.width = vp.width; c.height = vp.height; c.className = "rpage";
+          c.setAttribute("role", "img"); c.setAttribute("aria-label", `Résumé, page ${i} of ${doc.numPages}`); box.appendChild(c);
+          await page.render({ canvasContext: c.getContext("2d"), viewport: vp }).promise;
+          const txt = await page.getTextContent(), sr = document.createElement("div"); sr.className = "sr-only"; sr.textContent = txt.items.map((t) => t.str).join(" "); box.appendChild(sr);
+        }
+      } catch { if (box.isConnected) box.innerHTML = `<div class="rload">The PDF couldn't be shown here. <a href="${esc(data.resume)}" target="_blank" rel="noopener">Open it in a new tab</a> instead.</div>`; }
+    } },
+  games: { html: () => `<div class="gamegrid"><div class="card"><div class="hand">mini-games</div><p class="muted" style="margin:6px 0 14px">Finish my puzzle, then try to break my bot.</p>
       <div class="pz"><div class="pzboard" id="pzboard" style="background-image:url(${pzTex.image.toDataURL()})">${PZ_HOLES.map(([x, y], i) => `<div class="slot${pzDone ? " filled" : ""}" data-s="${i}" style="left:${x / 5.12}%;top:${y / 3.84}%;${pzDone ? pieceBg(i) : ""}"></div>`).join("")}</div>
       <div class="pztray" id="pztray">${pzDone ? `<div class="hand" style="font-size:1.3rem">Finished! Thank you ♡</div>` : [2, 0, 1].map((i) => `<button class="piece" data-p="${i}" aria-label="Puzzle piece ${i + 1}" style="${pieceBg(i)}"></button>`).join("")}</div></div></div>
-      <div class="card">${game()}</div>`,
+      <div class="card">${game()}</div></div>`,
     init() { initGame(); root.querySelectorAll(".piece").forEach((b) => (b.onclick = () => { const i = +b.dataset.p, slot = root.querySelector(`.slot[data-s="${i}"]`);
       slot.setAttribute("style", slot.getAttribute("style") + pieceBg(i)); slot.classList.add("filled"); b.remove(); blip(880 + i * 120, .08, .05);
       if (!root.querySelector(".piece")) { pzDone = true; pzTex.userData.redraw(); loose.forEach((p) => (p.visible = false)); $("#pztray").innerHTML = `<div class="hand" style="font-size:1.3rem">Finished! Thank you ♡</div>`; say("You finished my puzzle!"); blip(1320, .2, .05); } })); } },
@@ -698,7 +729,7 @@ const VIEWS = {
       <p class="muted small">I'm Taniksha's LangGraph agent. If my server is napping, I answer from her portfolio instead.</p></div>`,
     init() { const ask = (q) => { q = q.trim(); if (!q) return; const log = $("#nlog");
         log.insertAdjacentHTML("beforeend", `<div class="msg you">${esc(q)}</div><div class="msg bot typing">•••</div>`); blip(1100, .05, .03);
-        askAgent(q, log.querySelector(".typing")).then(() => blip(1450, .06, .03)); };
+        log.scrollTop = log.scrollHeight; askAgent(q, log.querySelector(".typing")).then(() => { blip(1450, .06, .03); log.scrollTop = log.scrollHeight; }); };
       root.querySelectorAll("#nchips .try").forEach((b) => (b.onclick = () => ask(b.textContent)));
       $("#nform").onsubmit = (e) => { e.preventDefault(); ask($("#nin").value); $("#nin").value = ""; }; setTimeout(() => $("#nin").focus(), 500); } },
   facts: { html: () => `<div class="card"><div class="hand" style="margin-bottom:12px">a few things about me</div><div class="facts">
@@ -706,7 +737,8 @@ const VIEWS = {
       <div class="fact"><div class="hand" style="font-size:1.3rem">reading</div>Mostly fiction.</div>
       <div class="fact"><div class="hand" style="font-size:1.3rem">on repeat</div>Pop, R&amp;B and rock.</div>
       <div class="fact"><div class="hand" style="font-size:1.3rem">puzzles</div>My newest hobby, one piece at a time.</div></div></div>` },
-  reading: { html: () => `<div class="card"><div class="hand">Mostly fiction.</div><p>Each book on the shelf would open one of my favorites.</p><div class="placeholder">Send 3–5 favorite books and a line on each, and they go here.</div></div>` },
+  reading: { html: () => `<div class="card readc"><div class="hand">on my shelf</div><h3>Mostly fiction.</h3><p>The kind of book I stay up too late to finish. I'm always looking for the next one.</p><div class="contact-row"><button class="btn" id="recBtn">Recommend me a book</button></div></div>`,
+    init() { $("#recBtn").onclick = () => switchTo("contact"); } },
   contact: {
     html: () => `<div class="letter"><div class="hand">Dear you,</div>
       <p>Thanks for stopping by my room. I'm graduating in December 2026 and looking for AI engineering roles: LLM systems, RAG, agents and MLOps.</p>
@@ -826,9 +858,9 @@ const tags = interactive.map((it) => {
   el.onclick = (e) => { e.stopPropagation(); activate(it); }; el.onmouseenter = () => { hovered = it; }; el.onmouseleave = () => { if (hovered === it) hovered = null; };
   tagLayer.appendChild(el); return { it, el, anchor };
 });
-let showTags = true; try { showTags = localStorage.getItem("room-labels") !== "off"; } catch {}
-const setTags = (on) => { showTags = on; tagLayer.classList.toggle("off", !on); const b = $("#labels"); b.textContent = on ? "Labels on" : "Labels off"; b.setAttribute("aria-pressed", on); try { localStorage.setItem("room-labels", on ? "on" : "off"); } catch {} };
-$("#labels").onclick = () => setTags(!showTags); setTags(showTags);
+let showTags = false; try { showTags = localStorage.getItem("room-tags") === "on"; } catch {}
+const setTags = (on, save) => { showTags = on; tagLayer.classList.toggle("off", !on); const b = $("#labels"); b.textContent = on ? "Labels on" : "Labels off"; b.setAttribute("aria-pressed", on); if (save) try { localStorage.setItem("room-tags", on ? "on" : "off"); } catch {} };
+$("#labels").onclick = () => setTags(!showTags, true); setTags(showTags);
 const tagV = new THREE.Vector3();
 
 function placeTags() {
@@ -895,7 +927,7 @@ if (location.search.includes("export")) window.__exportRoom = async () => {
 const night = { v: 0, target: 0 };
 const tmp = new THREE.Vector3();
 let introDone = false, discoverAt = 0, lastHover = null;
-flyTo(homePose().pos, homePose().look, 2200, () => { introDone = true; bubble.classList.remove("hide"); say(lines[0]); discoverAt = performance.now(); });
+flyTo(homePose().pos, homePose().look, 2200, () => { introDone = true; if (window.requestIdleCallback) requestIdleCallback(paintClipboard, { timeout: 4000 }); else setTimeout(paintClipboard, 1200); bubble.classList.remove("hide"); say(lines[0]); discoverAt = performance.now(); });
 $("#loading").style.opacity = 0;
 
 function frame(now) {
