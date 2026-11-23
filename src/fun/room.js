@@ -375,6 +375,18 @@ const coffee = cyl(.046, .046, .005, mat("#6b4430")); coffee.position.y = .1; mu
 const handle = new THREE.Mesh(new THREE.TorusGeometry(.03, .009, 10, 24), mat("#f3e6d4")); handle.position.set(.055, .06, 0); handle.castShadow = true; mug.add(handle);
 mug.position.set(0.98, DESK_Y, -2.05); mug.rotation.y = -0.25; mug.scale.setScalar(1.25); room.add(mug);
 const steam = []; for (let i = 0; i < 4; i++) { const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: softTex, transparent: true, depthWrite: false, opacity: 0 })); s.scale.setScalar(.05); mug.add(s); steam.push({ s, ph: i / 4 }); }
+/* a little LEGO stack (she loves LEGO) */
+{
+  const lego = new THREE.Group(); lego.userData.noBake = true; const U = .016;   // one stud pitch
+  const brick = (nx, nz, color, y, x = 0, z = 0, ry = 0) => {
+    const m = mat(color, { roughness: .35, envMapIntensity: .5 }), g = new THREE.Group();
+    const body = box(nx * U, U * 1.2, nz * U, m, .0015); body.position.y = U * .6; g.add(body);
+    for (let i = 0; i < nx; i++) for (let k = 0; k < nz; k++) { const st = cyl(U * .3, U * .3, U * .2, m, 12); st.position.set((i - (nx - 1) / 2) * U, U * 1.3, (k - (nz - 1) / 2) * U); g.add(st); }
+    g.position.set(x, y, z); g.rotation.y = ry; lego.add(g); return g;
+  };
+  brick(4, 2, "#e8b84a", 0); brick(2, 2, "#cf4f6f", U * 1.2, .008, 0, .2); brick(2, 1, "#5f9e86", 0, .085, .03, .9);
+  lego.scale.setScalar(1.9); lego.position.set(.86, DESK_Y, -1.66); lego.rotation.y = -.5; room.add(lego);
+}
 register(mug, "facts", "fun facts", (it, t) => { mug.position.y = DESK_Y + t * 0.03; mug.rotation.y = -0.25 + t * 0.4; });
 
 /* jigsaw puzzle */
@@ -805,11 +817,8 @@ const VIEWS = {
         log.scrollTop = log.scrollHeight; askAgent(q, log.querySelector(".typing")).then(() => { blip(1450, .06, .03); log.scrollTop = log.scrollHeight; }); };
       root.querySelectorAll("#nchips .try").forEach((b) => (b.onclick = () => ask(b.textContent)));
       $("#nform").onsubmit = (e) => { e.preventDefault(); ask($("#nin").value); $("#nin").value = ""; }; setTimeout(() => $("#nin").focus(), 500); } },
-  facts: { html: () => `<div class="factsw"><div class="hand factsh">a few things about me</div><div class="facts">
-      <div class="fact"><span class="tape" aria-hidden="true"></span><div class="hand">building</div>Agents, retrieval and whatever I'm prototyping next.</div>
-      <div class="fact"><span class="tape" aria-hidden="true"></span><div class="hand">reading</div>Mostly fiction.</div>
-      <div class="fact"><span class="tape" aria-hidden="true"></span><div class="hand">on repeat</div>Pop, R&amp;B and rock.</div>
-      <div class="fact"><span class="tape" aria-hidden="true"></span><div class="hand">puzzles</div>My newest hobby, one piece at a time.</div></div></div>` },
+  facts: { html: () => `<div class="factsw"><div class="factsh"><div class="hand">a few things about me</div><p class="muted">little notes from my wall</p></div>
+      <div class="facts">${(D.facts || []).map((f, i) => `<div class="fact" style="--i:${i}"><span class="tape" aria-hidden="true"></span>${DOODLES[f.art] || ""}<div class="hand">${esc(f.label)}</div><p>${esc(f.text)}</p></div>`).join("")}</div></div>` },
   reading: { html: () => `<div class="card readc"><div class="spines" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div><div class="hand">on my shelf</div><h3>Mostly fiction.</h3><p>The kind of book I stay up too late to finish. I'm always looking for the next one.</p><div class="contact-row"><button class="btn" id="recBtn">Recommend me a book</button></div></div>`,
     init() { $("#recBtn").onclick = () => switchTo("contact"); } },
   contact: {
@@ -824,6 +833,14 @@ const VIEWS = {
 };
 const pzFullURL = pzFull.toDataURL();
 const pieceBg = (i) => { const [x, y] = PZ_HOLES[i]; return `background-image:url(${pzFullURL});background-position:${(x / 64) / 7 * 100}% ${(y / 64) / 5 * 100}%;`; };
+const doodle = (d) => `<svg class="doodle" viewBox="0 0 48 48" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
+const DOODLES = {
+  laptop: doodle('<rect x="10" y="12" width="28" height="18" rx="2"/><path d="M6 34h36l-3 4H9z"/><path d="M18 20l3 3-3 3M24 26h6"/>'),
+  book: doodle('<path d="M8 12c6-2 11-1 16 3 5-4 10-5 16-3v24c-6-2-11-1-16 3-5-4-10-5-16-3z"/><path d="M24 15v24"/>'),
+  headphones: doodle('<path d="M10 30v-6a14 14 0 0 1 28 0v6"/><rect x="7" y="28" width="7" height="11" rx="3"/><rect x="34" y="28" width="7" height="11" rx="3"/>'),
+  puzzle: doodle('<path d="M10 14h9a4 4 0 1 1 8 0h9v9a4 4 0 1 0 0 8v9h-9a4 4 0 1 0-8 0h-9v-9a4 4 0 1 1 0-8z"/>'),
+  lego: doodle('<rect x="7" y="20" width="34" height="18" rx="2"/><rect x="11" y="13" width="8" height="7" rx="1.5"/><rect x="29" y="13" width="8" height="7" rx="1.5"/>'),
+};
 const NQ = ["What is she working on?", "What's her best project?", "Is she open to roles?", "What's her tech stack?", "How do I reach her?"];
 /* Nimbus talks to the real LangGraph agent (same /api/chat stream the simple site uses).
    If the server is asleep or unreachable, it falls back to short answers from the portfolio. */
@@ -869,7 +886,7 @@ function nimbusAnswer(q) {
   if (has("bevi", "experience", "work", "intern", "co-op", "career")) return D.jobs.map((j) => `${j.t} at ${j.c} (${j.d})`).join("; ") + ". The record player plays the full tracklist.";
   if (has("agent", "rag", "llm", "retriev", "eval")) return "Agents are her thing. At Bevi she built a knowledge-retrieval agent on Google ADK + Gemini 2.5 Flash, grounded in Vertex AI Search with citations and abstention, plus an evaluation harness that catches regressions before release.";
   if (has("school", "study", "degree", "gpa", "education", "university", "northeastern", "master")) return "M.S. in Computer Science at Northeastern (GPA 3.84, Dec 2026), and a B.E. in Computer Engineering from Savitribai Phule Pune University (GPA 3.70).";
-  if (has("hobby", "hobbies", "fun", "free time", "music", "read", "book", "puzzle")) return "Jigsaw puzzles (there's one on the desk you can finish), mostly fiction, and pop, R&B and rock on repeat.";
+  if (has("hobby", "hobbies", "fun", "free time", "music", "read", "book", "puzzle", "lego")) return "LEGO (there's a little stack on the desk), jigsaw puzzles (there's one you can finish), mostly fiction, and pop, R&B and rock on repeat.";
   if (has("who", "about her", "tell me", "herself", "boston", "pune")) return "Taniksha is an AI engineer who builds production LLM systems: multi-agent architectures, retrieval that cites its sources, and the evaluation and MLOps plumbing behind them. She moved from Pune to Boston for her master's.";
   if (/\b(hi|hello|hey|yo)\b/.test(s)) return "Hi! ☁ Ask me anything about Taniksha.";
   return "Hmm, I only know about Taniksha's work in this little room. Try one of the questions above!";

@@ -1,5 +1,5 @@
 // Shapes content/portfolio.json into what the fun-mode room renders, so both modes share one source.
-import { profile, experience, projects, skills } from "../data";
+import { profile, about, experience, projects, skills } from "../data";
 
 // Short labels for the app icons on the laptop screen.
 const ICONS = [
@@ -34,4 +34,10 @@ export const roomData = {
   })),
   jobs: experience.map((j) => ({ t: j.role, c: j.company, d: j.period, p: j.points })),
   skills: Object.fromEntries(skills.map((g) => [g.group, g.items.join(", ")])),
+  // Fun facts: short handwritten labels for the sticky notes.
+  facts: (about.interests || []).map((i) => ({
+    label: { building: "building", music: "on repeat", puzzles: "puzzles" }[i.id] || i.title.toLowerCase(),
+    text: i.text,
+    art: i.art,
+  })),
 };

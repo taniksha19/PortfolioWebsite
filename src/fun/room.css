@@ -523,3 +523,34 @@ html.fun-open, html.fun-open body { height: 100%; overflow: hidden; }
 .fun-root .letter .contact-row { margin-top: 0; min-height: 64px; align-content: center; }
 .fun-root .letter .mail { font-family: var(--font-body); font-weight: 600; font-size: .95rem; letter-spacing: 0; }
 @media (max-width: 640px) { .fun-root .letter { padding: 32px 22px; } .fun-root .letter p { font-size: 1.35rem; } }
+
+/* ================= fun facts v2: a wall of sticky notes ================= */
+.fun-root .factsw { max-width: 900px; width: 100%; margin: 0 auto; gap: 30px; }
+.fun-root .factsh { text-align: center; }
+.fun-root .factsh .hand { font-size: 2.4rem; line-height: 1; }
+.fun-root .factsh p { margin: 6px auto 0; font-size: .95rem; }
+.fun-root .facts { display: flex; flex-wrap: wrap; justify-content: center; gap: 30px 26px; }
+.fun-root .fact { flex: 0 1 230px; min-height: 0; padding: 30px 22px 22px; border-radius: 2px 2px 14px 2px;
+  transform: rotate(var(--r, -2deg)); background: var(--note); color: var(--p-ink);
+  box-shadow: 0 1px 1px rgba(60,35,80,.08), 0 22px 30px -20px rgba(60,35,80,.5), inset 0 -18px 24px -22px rgba(60,35,80,.25);
+  animation: noteIn .55s cubic-bezier(.2,1.3,.4,1) both; animation-delay: calc(var(--i) * 70ms); }
+.fun-root .fact:nth-child(5n+1) { --r: -2.6deg; --note: #fff1b8; --ink-note: #a77a12; }
+.fun-root .fact:nth-child(5n+2) { --r: 1.8deg; --note: #fbd9e3; --ink-note: #b04d77; }
+.fun-root .fact:nth-child(5n+3) { --r: -1.2deg; --note: #d6eedf; --ink-note: #3f7d63; }
+.fun-root .fact:nth-child(5n+4) { --r: 2.6deg; --note: #e3e6fa; --ink-note: #5361a8; }
+.fun-root .fact:nth-child(5n+5) { --r: -1.8deg; --note: #ffe0cc; --ink-note: #c0623a; }
+.fun-root .fact .doodle { width: 44px; height: 44px; color: var(--ink-note); display: block; margin-bottom: 4px; transform: rotate(-6deg); }
+.fun-root .fact .hand { font-size: 1.75rem; color: var(--ink-note); margin: 0 0 4px; }
+.fun-root .fact p { margin: 0; color: var(--p-ink); font-size: 1rem; line-height: 1.5; }
+.fun-root .fact .tape { background: repeating-linear-gradient(45deg, rgba(255,255,255,.4) 0 6px, transparent 6px 12px), color-mix(in srgb, var(--ink-note) 45%, transparent); }
+.fun-root .fact:hover { transform: rotate(0deg) translateY(-6px) scale(1.04); z-index: 2; }
+@keyframes noteIn { from { opacity: 0; transform: translateY(-24px) rotate(calc(var(--r) * 3)) scale(1.08); } }
+@media (max-width: 640px) {
+  .fun-root .facts { gap: 20px 14px; }
+  .fun-root .fact { flex-basis: calc(50% - 7px); padding: 26px 14px 16px; }
+  .fun-root .fact .doodle { width: 34px; height: 34px; }
+  .fun-root .fact .hand { font-size: 1.4rem; }
+  .fun-root .fact p { font-size: .9rem; }
+}
+@media (prefers-reduced-motion: reduce) { .fun-root .fact { animation: none; } }
+.fun-root .facts > .fact { background: var(--note); }

@@ -14,7 +14,7 @@ from .schemas import EmailDraft, RelevanceReport, RelevantWork, Requirements, Ro
 JOB_HINTS = ("responsibilit", "requirement", "qualification", "job description", "we are looking", "you will", "years of experience", "nice to have")
 CONTACT_HINTS = ("email", "contact", "reach out", "reach her", "get in touch", "hire", "interview", "schedule", "connect with")
 TOPIC_HINTS = ("taniksha", "experience", "project", "skill", "work", "built", "study", "school", "education", "gpa", "degree", "intern", "co-op",
-               "she", "her", "they", "their", "fun", "hobby", "hobbies", "music", "books", "read", "from", "puzzle", "you", "agent", "llm", "rag", "mlops", "python", "cloud", "model", "data", "bevi", "resume")
+               "she", "her", "they", "their", "fun", "hobby", "hobbies", "music", "books", "read", "from", "puzzle", "lego", "you", "agent", "llm", "rag", "mlops", "python", "cloud", "model", "data", "bevi", "resume")
 
 
 def _last_human(messages) -> str:
