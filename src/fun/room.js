@@ -280,7 +280,7 @@ const lidPivot = new THREE.Group(); lidPivot.position.set(0, 0.022, -0.19); lapt
 const lid = box(0.56, 0.36, 0.014, alu, 0.008); lid.position.set(0, 0.18, 0); lidPivot.add(lid);
 let screenTime = "";
 const screenTex = canvasTex(800, 500, (g, w, h) => {
-  const gr = g.createLinearGradient(0, 0, w, h); gr.addColorStop(0, "#efe7ff"); gr.addColorStop(1, "#fbe3f0"); g.fillStyle = gr; g.fillRect(0, 0, w, h);
+  const gr = g.createLinearGradient(0, 0, w, h); gr.addColorStop(0, "#e6efdd"); gr.addColorStop(1, "#fbe6ea"); g.fillStyle = gr; g.fillRect(0, 0, w, h);
   g.fillStyle = "rgba(255,255,255,.75)"; g.fillRect(0, 0, w, 40); g.fillStyle = "#4a4060"; g.font = '400 20px "DM Mono"'; g.fillText("taniksha.os", 18, 27); g.textAlign = "right"; g.fillText(screenTime, w - 18, 27); g.textAlign = "center";
   const cols = ["#f05a9a", "#7357c9", "#7357c9", "#3fa885", "#e0a23f", "#7357c9", "#3fa885"];
   D.projects.forEach((p, i) => { const x = 110 + (i % 4) * 190, y = 120 + Math.floor(i / 4) * 190;
@@ -726,7 +726,7 @@ const VIEWS = {
     init() { root.querySelectorAll(".track").forEach((t) => (t.onclick = () => { const on = t.getAttribute("aria-expanded") !== "true"; t.setAttribute("aria-expanded", on); t.nextElementSibling.hidden = !on; })); }
   },
   journey: { html: () => `<div class="pc"><div class="stamp" aria-hidden="true"><span>BOS</span><small>first flight</small></div><div class="postmark" aria-hidden="true">PUNE · BOSTON</div><div><div class="hand">Greetings from Boston!</div>
-      <div class="route">Pune <svg viewBox="0 0 100 24" preserveAspectRatio="none" aria-hidden="true"><path d="M2 18 Q50 -6 98 18" fill="none" stroke="#6a4fbf" stroke-width="2" stroke-dasharray="4 4"/></svg> Boston</div>
+      <div class="route">Pune <svg viewBox="0 0 100 24" preserveAspectRatio="none" aria-hidden="true"><path d="M2 18 Q50 -6 98 18" fill="none" stroke="#b04d77" stroke-width="2" stroke-dasharray="4 4"/></svg> Boston</div>
       <p class="muted">I moved from Pune to Boston for my master's at Northeastern, and getting here came with a few firsts.</p></div>
       <div><div class="hand" style="font-size:1.35rem">a few firsts</div><ul class="pts"><li>My first ever flight: Pune to Boston</li><li>First in my family to earn a degree</li><li>First in my family to move abroad for education</li></ul></div></div>
       <div class="pols">${polaroids.map((p, i) => `<img src="${p.img.toDataURL()}" alt="Polaroid: ${esc(p.cap)}" style="--r:${(i - 1) * 4}deg;--d:${i * 90}ms">`).join("")}</div>` },
@@ -760,13 +760,40 @@ const VIEWS = {
         }
       } catch { if (box.isConnected) box.innerHTML = `<div class="rload">The PDF couldn't be shown here. <a href="${esc(data.resume)}" target="_blank" rel="noopener">Open it in a new tab</a> instead.</div>`; }
     } },
-  games: { html: () => `<div class="gamegrid"><div class="card"><div class="hand">mini-games</div><p class="muted" style="margin:6px 0 14px">Finish my puzzle, then try to break my bot.</p>
+  games: { html: () => `<div class="gamegrid"><div class="card"><div class="hand">mini-games</div><p class="muted" style="margin:6px 0 14px">Drag the pieces into my puzzle, then try to break my bot.</p>
       <div class="pz"><div class="pzboard" id="pzboard" style="background-image:url(${pzTex.image.toDataURL()})">${PZ_HOLES.map(([x, y], i) => `<div class="slot${pzDone ? " filled" : ""}" data-s="${i}" style="left:${x / 5.12}%;top:${y / 3.84}%;${pzDone ? pieceBg(i) : ""}"></div>`).join("")}</div>
       <div class="pztray" id="pztray">${pzDone ? `<div class="hand" style="font-size:1.3rem">Finished! Thank you ♡</div>` : [2, 0, 1].map((i) => `<button class="piece" data-p="${i}" aria-label="Puzzle piece ${i + 1}" style="${pieceBg(i)}"></button>`).join("")}</div></div></div>
       <div class="card">${game()}</div></div>`,
-    init() { initGame(); root.querySelectorAll(".piece").forEach((b) => (b.onclick = () => { const i = +b.dataset.p, slot = root.querySelector(`.slot[data-s="${i}"]`);
-      slot.setAttribute("style", slot.getAttribute("style") + pieceBg(i)); slot.classList.add("filled"); b.remove(); blip(880 + i * 120, .08, .05);
-      if (!root.querySelector(".piece")) { pzDone = true; pzTex.userData.redraw(); loose.forEach((p) => (p.visible = false)); $("#pztray").innerHTML = `<div class="hand" style="font-size:1.3rem">Finished! Thank you ♡</div>`; say("You finished my puzzle!"); blip(1320, .2, .05); } })); } },
+    init() { initGame();
+      const tray = $("#pztray");
+      const finish = () => { pzDone = true; pzTex.userData.redraw(); loose.forEach((p) => (p.visible = false)); tray.innerHTML = `<div class="hand" style="font-size:1.3rem">Finished! Thank you ♡</div>`; say("You finished my puzzle!"); blip(1320, .2, .05); };
+      const place = (pc) => { const i = +pc.dataset.p, slot = root.querySelector(`.slot[data-s="${i}"]`);
+        slot.classList.remove("hot"); slot.setAttribute("style", slot.getAttribute("style") + pieceBg(i)); slot.classList.add("filled"); pc.remove(); blip(880 + i * 120, .08, .05);
+        if (!root.querySelector(".piece")) finish(); };
+      const centre = (r) => [r.left + r.width / 2, r.top + r.height / 2];
+      root.querySelectorAll(".piece").forEach((pc) => {
+        // keyboard: Enter / Space drops the piece straight into its gap
+        pc.onkeydown = (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); place(pc); } };
+        pc.onpointerdown = (e) => {
+          if (e.button) return; e.preventDefault(); pc.setPointerCapture(e.pointerId);
+          const target = root.querySelector(`.slot[data-s="${pc.dataset.p}"]`), sx = e.clientX, sy = e.clientY, home = centre(pc.getBoundingClientRect());
+          let moved = false, near = false; pc.classList.add("dragging"); pc.style.transition = "none"; blip(620, .04, .03);
+          pc.onpointermove = (ev) => {
+            const dx = ev.clientX - sx, dy = ev.clientY - sy; if (Math.hypot(dx, dy) > 4) moved = true;
+            pc.style.transform = `translate(${dx}px, ${dy}px) rotate(${Math.max(-14, Math.min(14, dx / 18))}deg) scale(1.15)`;
+            const [tx, ty] = centre(target.getBoundingClientRect()), tr = target.getBoundingClientRect();
+            near = Math.hypot(home[0] + dx - tx, home[1] + dy - ty) < Math.max(tr.width, 30) * .8; target.classList.toggle("hot", near);
+          };
+          pc.onpointerup = pc.onpointercancel = () => {
+            pc.onpointermove = pc.onpointerup = pc.onpointercancel = null; pc.classList.remove("dragging");
+            if (near) return place(pc);
+            target.classList.remove("hot"); pc.style.transition = ""; pc.style.transform = "";
+            if (!moved) { pc.classList.remove("wiggle"); void pc.offsetWidth; pc.classList.add("wiggle"); say("Drag me into the gap!"); }
+            else blip(300, .08, .03, "triangle");
+          };
+        };
+      });
+    } },
   nimbus: { html: () => `<div class="card nchat"><div class="nhead"><svg viewBox="0 0 64 44" aria-hidden="true"><path d="M14 40a12 12 0 0 1-1-24 15 15 0 0 1 28-6 11 11 0 0 1 10 8 11 11 0 0 1-1 22z" fill="#fff" stroke="#d9ccff" stroke-width="2"/><circle cx="26" cy="26" r="2.6" fill="#2a2638"/><circle cx="38" cy="26" r="2.6" fill="#2a2638"/><path d="M29 31q3 3 6 0" stroke="#2a2638" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
       <div><b>Nimbus</b><div class="muted">Taniksha's portfolio agent</div></div></div>
       <div class="chat" id="nlog" aria-live="polite"><div class="msg bot">Hi! I'm Nimbus. Ask me anything about Taniksha's work.</div></div>
