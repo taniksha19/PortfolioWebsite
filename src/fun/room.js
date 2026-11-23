@@ -230,6 +230,28 @@ const polaroids = POLS.map((p, i) => {
   return { pivot, card, home, rot: p.rot, img: tex.image, cap: p.cap, ph: i * 1.7 };
 });
 let journeyT = 0;   // 0 = all pinned, grows while the journey is open
+/* headphones hung on a pin at the board's right edge */
+{
+  const hp = new THREE.Group(), bandM = mat("#f6eef6", { roughness: .5 }), cupM = mat("#e7a8c4", { roughness: .55 }), padM = mat("#3b3046", { roughness: .9 });
+  const band = new THREE.Mesh(new THREE.TorusGeometry(.068, .007, 10, 40, Math.PI), bandM); band.castShadow = true; hp.add(band);
+  [-1, 1].forEach((sd) => {
+    const arm = cyl(.004, .004, .03, bandM, 8); arm.position.set(sd * .068, -.012, 0); hp.add(arm);
+    const cup = cyl(.03, .03, .022, cupM, 28); cup.rotation.z = Math.PI / 2; cup.position.set(sd * .072, -.045, 0); hp.add(cup);
+    const pad = cyl(.026, .026, .01, padM, 28); pad.rotation.z = Math.PI / 2; pad.position.set(sd * .057, -.045, 0); hp.add(pad);
+  });
+  hp.scale.setScalar(1.35); hp.rotation.set(-.08, -.25, -.1); hp.position.set(.6, .075, .07); cork.add(hp);
+  const hook = sph(.012, mat("#cf6f93", { roughness: .4 }), 14); hook.position.set(.59, .17, .03); cork.add(hook);
+}
+/* a small paper plane pinned to the board, mid-flight */
+{
+  const N = [.075, 0, 0], L = [-.05, .04, .004], R = [-.05, -.04, .004], C = [-.05, 0, .018], K = [-.045, 0, .002];
+  const pos = new Float32Array([...N, ...L, ...C, ...N, ...C, ...R, ...N, ...K, ...C]);
+  const g = new THREE.BufferGeometry(); g.setAttribute("position", new THREE.BufferAttribute(pos, 3)); g.computeVertexNormals();
+  const plane = new THREE.Mesh(g, mat("#fffdf8", { side: THREE.DoubleSide, roughness: .7, flatShading: true })); plane.castShadow = true;
+  plane.position.set(-.08, -.02, .03); plane.rotation.z = .3; cork.add(plane);
+  const trail = new THREE.Mesh(new THREE.PlaneGeometry(.16, .004), mat("#ffffff", { transparent: true, opacity: .55, roughness: 1 }));
+  trail.position.set(-.19, -.055, .022); trail.rotation.z = .3; cork.add(trail);
+}
 register(cork, "journey", "my journey", (it, t) => { cork.position.z = WZ + 0.07 + t * 0.03; });
 for (let i = 0; i < 12; i++) { const x = 0.35 + i * 0.11, y = 2.46 - Math.sin(i / 11 * Math.PI) * 0.07; bulb(x, y, WZ + 0.12); }
 
@@ -413,9 +435,33 @@ const bigPlant = kit("pottedPlant", 1.05); bigPlant.position.set(-2.12, 0, -2.25
 /* low open bookcase under the window, dressed with books, a radio and a plant */
 const shelf = kit("bookcaseOpenLow", .56, { wood: "#ece2f8" }); shelf.position.set(-1.56, 0, -2.33); room.add(shelf);
 [["books", .135, -1.69, .285, 0, { carpetDarker: "#d16b7b", carpetWhite: "#8e9bd8", plant: "#e5b45a" }], ["books", .135, -1.44, .285, Math.PI, { carpetDarker: "#6fae8f", carpetWhite: "#b07ad6", plant: "#e7a8c4" }],
- ["radio", .15, -1.68, .56, .15, { wood: "#e7a8c4", metalMedium: "#7d73a8" }], ["plantSmall3", .24, -1.36, .56, 0, {}]].forEach(([n, h, x, y, r, o]) => { const d = kit(n, h, o); d.position.set(x, y, -2.33); d.rotation.y = r; room.add(d); });
+ ["radio", .15, -1.68, .56, .15, { wood: "#e7a8c4", metalMedium: "#7d73a8" }], ["plantSmall3", .24, -1.36, .56, 0, {}]].forEach(([n, h, x, y, r, o]) => { const d = kit(n, h, o); if (n === "plantSmall3") d.visible = false; /* stays in the bake list so lightmap names still line up */ d.position.set(x, y, -2.33); d.rotation.y = r; room.add(d); });
+/* a pot of lilies: Taniksha's favourite flowers */
+{
+  const lil = new THREE.Group(); lil.userData.noBake = true;
+  const pot = cyl(.06, .045, .1, mat("#f4e9ee", { roughness: .6 }), 28); pot.position.y = .05; lil.add(pot);
+  const rim = new THREE.Mesh(new THREE.TorusGeometry(.06, .007, 8, 32), mat("#e7a8c4", { roughness: .6 })); rim.rotation.x = Math.PI / 2; rim.position.y = .1; lil.add(rim);
+  const soil = cyl(.055, .055, .005, mat("#5a4038"), 24); soil.position.y = .097; lil.add(soil);
+  const stemM = mat("#5f9e86", { roughness: .7 }), leafM = mat("#6fae8f", { roughness: .7, side: THREE.DoubleSide });
+  const petalM = mat("#fff8fb", { roughness: .55, side: THREE.DoubleSide }), blushM = mat("#f3a9c4", { roughness: .55, side: THREE.DoubleSide }), antherM = mat("#c97a3a");
+  const petalG = new THREE.SphereGeometry(1, 12, 8); petalG.translate(0, 1, 0);
+  const flower = (x, z, h, tilt, rotY, pink) => {
+    const st = cyl(.0035, .0045, h, stemM, 8); st.position.set(x / 2, .1 + h / 2, z / 2); st.rotation.set(z * 1.2, 0, -x * 1.2); lil.add(st);
+    const head = new THREE.Group(); head.position.set(x, .1 + h, z); head.rotation.set(tilt, rotY, 0); lil.add(head);
+    for (let i = 0; i < 6; i++) {
+      const pt = new THREE.Mesh(petalG, i % 2 && pink ? blushM : petalM); pt.scale.set(.011, .036, .004);
+      const piv = new THREE.Group(); piv.rotation.y = i * Math.PI / 3; pt.rotation.x = .95 + (i % 2) * .15; piv.add(pt); head.add(piv); pt.castShadow = true;
+    }
+    for (let i = 0; i < 5; i++) { const a = i * 1.26, an = sph(.0035, antherM, 6); an.position.set(Math.cos(a) * .008, .022, Math.sin(a) * .008); head.add(an); }
+  };
+  flower(-.03, .01, .2, .5, .3, true); flower(.035, -.01, .25, .45, 2.2, true); flower(0, .03, .16, .7, 4, false);
+  [[.02, .02, .21], [-.02, -.03, .18]].forEach(([x, z, h]) => { const st = cyl(.003, .004, h, stemM, 8); st.position.set(x / 2, .1 + h / 2, z / 2); st.rotation.set(z, 0, -x); lil.add(st);
+    const bud = sph(1, mat("#eef4e6"), 10); bud.scale.set(.008, .025, .008); bud.position.set(x, .1 + h + .02, z); lil.add(bud); });
+  for (let i = 0; i < 7; i++) { const lf = new THREE.Mesh(petalG, leafM); lf.scale.set(.008, .085, .002); const piv = new THREE.Group(); piv.position.y = .1; piv.rotation.y = i * .9; lf.rotation.x = .35 + (i % 3) * .12; piv.add(lf); lil.add(piv); }
+  lil.scale.setScalar(1.2); lil.position.set(-1.36, .56, -2.33); room.add(lil);
+}
 /* mouse by the laptop, small speaker by the record player */
-const kMouse = kit("computerMouse", .028); kMouse.position.set(0.78, DESK_Y + .006, -1.86); kMouse.rotation.y = .2; room.add(kMouse);
+const kMouse = kit("computerMouse", .028, { metalDark: "#f3a9c4" }); kMouse.position.set(0.78, DESK_Y + .006, -1.86); kMouse.rotation.y = .2; room.add(kMouse);
 /* framed photo of me -> about */
 const avatarURL = assetBase + "taniksha.png";
 const avatarImg = new Image(); avatarImg.src = avatarURL; await avatarImg.decode().catch(() => {});
@@ -679,17 +725,17 @@ const VIEWS = {
       <p style="margin:12px 10px 0;font-size:.85rem;color:#b9b0d6">On repeat when I'm not working: pop, R&amp;B and rock.</p></div></div>`,
     init() { root.querySelectorAll(".track").forEach((t) => (t.onclick = () => { const on = t.getAttribute("aria-expanded") !== "true"; t.setAttribute("aria-expanded", on); t.nextElementSibling.hidden = !on; })); }
   },
-  journey: { html: () => `<div class="pc"><div><div class="hand">Greetings from Boston!</div>
-      <div class="route">Pune <svg viewBox="0 0 100 24" preserveAspectRatio="none" aria-hidden="true"><path d="M2 18 Q50 -6 98 18" fill="none" stroke="#7357c9" stroke-width="2" stroke-dasharray="4 4"/></svg> Boston</div>
+  journey: { html: () => `<div class="pc"><div class="stamp" aria-hidden="true"><span>BOS</span><small>first flight</small></div><div class="postmark" aria-hidden="true">PUNE · BOSTON</div><div><div class="hand">Greetings from Boston!</div>
+      <div class="route">Pune <svg viewBox="0 0 100 24" preserveAspectRatio="none" aria-hidden="true"><path d="M2 18 Q50 -6 98 18" fill="none" stroke="#6a4fbf" stroke-width="2" stroke-dasharray="4 4"/></svg> Boston</div>
       <p class="muted">I moved from Pune to Boston for my master's at Northeastern, and getting here came with a few firsts.</p></div>
       <div><div class="hand" style="font-size:1.35rem">a few firsts</div><ul class="pts"><li>My first ever flight: Pune to Boston</li><li>First in my family to earn a degree</li><li>First in my family to move abroad for education</li></ul></div></div>
       <div class="pols">${polaroids.map((p, i) => `<img src="${p.img.toDataURL()}" alt="Polaroid: ${esc(p.cap)}" style="--r:${(i - 1) * 4}deg;--d:${i * 90}ms">`).join("")}</div>` },
-  about: { html: () => `<div class="card aboutc"><figure class="aphoto">${photoImg.naturalWidth ? `<img src="${assetBase}desk/me.jpg" alt="Taniksha smiling outdoors in winter" width="400" height="400">` : `<img src="${avatarURL}" alt="Illustration of Taniksha" width="180" height="290">`}<figcaption>Boston, MA</figcaption></figure><div><div class="hand">Hi, I'm Taniksha.</div><h3 style="margin-top:6px">AI engineer building production LLM systems</h3>
+  about: { html: () => `<div class="card aboutc"><figure class="aphoto"><span class="tape" aria-hidden="true"></span>${photoImg.naturalWidth ? `<img src="${assetBase}desk/me.jpg" alt="Taniksha smiling outdoors in winter" width="400" height="400">` : `<img src="${avatarURL}" alt="Illustration of Taniksha" width="180" height="290">`}<figcaption>Boston, MA</figcaption></figure><div><div class="hand">Hi, I'm Taniksha.</div><h3 style="margin-top:6px">AI engineer building production LLM systems</h3>
       <p>I build multi-agent architectures, retrieval that cites its sources, and the evaluation and MLOps plumbing that keeps them honest after launch. I'm finishing my M.S. in Computer Science at Northeastern in December 2026.</p>
       <p class="muted">Based in Boston, MA. Originally from Pune, India.</p>
       <div class="contact-row"><button class="btn" id="abRes">See my résumé</button><button class="btn ghost" id="abNow">What I'm up to</button></div></div></div>`,
     init() { $("#abRes").onclick = () => switchTo("resume"); $("#abNow").onclick = () => switchTo("now"); } },
-  now: { html: () => `<div class="card"><div class="nowtop"><div class="hand">right now</div><span class="status"><i></i>Open to AI roles</span></div><ul class="nowlist">
+  now: { html: () => `<div class="card nowc"><span class="pin" aria-hidden="true"></span><div class="today">${esc(new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" }))}</div><div class="nowtop"><div class="hand">right now</div><span class="status"><i></i>Open to AI roles</span></div><ul class="nowlist">
       <li><span>🎓</span>Finishing my M.S. in Computer Science at Northeastern, graduating December 2026.</li>
       <li><span>✨</span>Open to AI engineering roles: LLM systems, RAG, agents and MLOps.</li>
       <li><span>📍</span>Boston, MA.</li>
@@ -732,15 +778,15 @@ const VIEWS = {
         log.scrollTop = log.scrollHeight; askAgent(q, log.querySelector(".typing")).then(() => { blip(1450, .06, .03); log.scrollTop = log.scrollHeight; }); };
       root.querySelectorAll("#nchips .try").forEach((b) => (b.onclick = () => ask(b.textContent)));
       $("#nform").onsubmit = (e) => { e.preventDefault(); ask($("#nin").value); $("#nin").value = ""; }; setTimeout(() => $("#nin").focus(), 500); } },
-  facts: { html: () => `<div class="card"><div class="hand" style="margin-bottom:12px">a few things about me</div><div class="facts">
-      <div class="fact"><div class="hand" style="font-size:1.3rem">building</div>Agents, retrieval and whatever I'm prototyping next.</div>
-      <div class="fact"><div class="hand" style="font-size:1.3rem">reading</div>Mostly fiction.</div>
-      <div class="fact"><div class="hand" style="font-size:1.3rem">on repeat</div>Pop, R&amp;B and rock.</div>
-      <div class="fact"><div class="hand" style="font-size:1.3rem">puzzles</div>My newest hobby, one piece at a time.</div></div></div>` },
-  reading: { html: () => `<div class="card readc"><div class="hand">on my shelf</div><h3>Mostly fiction.</h3><p>The kind of book I stay up too late to finish. I'm always looking for the next one.</p><div class="contact-row"><button class="btn" id="recBtn">Recommend me a book</button></div></div>`,
+  facts: { html: () => `<div class="factsw"><div class="hand factsh">a few things about me</div><div class="facts">
+      <div class="fact"><span class="tape" aria-hidden="true"></span><div class="hand">building</div>Agents, retrieval and whatever I'm prototyping next.</div>
+      <div class="fact"><span class="tape" aria-hidden="true"></span><div class="hand">reading</div>Mostly fiction.</div>
+      <div class="fact"><span class="tape" aria-hidden="true"></span><div class="hand">on repeat</div>Pop, R&amp;B and rock.</div>
+      <div class="fact"><span class="tape" aria-hidden="true"></span><div class="hand">puzzles</div>My newest hobby, one piece at a time.</div></div></div>` },
+  reading: { html: () => `<div class="card readc"><div class="spines" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div><div class="hand">on my shelf</div><h3>Mostly fiction.</h3><p>The kind of book I stay up too late to finish. I'm always looking for the next one.</p><div class="contact-row"><button class="btn" id="recBtn">Recommend me a book</button></div></div>`,
     init() { $("#recBtn").onclick = () => switchTo("contact"); } },
   contact: {
-    html: () => `<div class="letter"><div class="hand">Dear you,</div>
+    html: () => `<div class="letter"><div class="lstamp" aria-hidden="true">♡</div><div class="hand">Dear you,</div>
       <p>Thanks for stopping by my room. I'm graduating in December 2026 and looking for AI engineering roles: LLM systems, RAG, agents and MLOps.</p>
       <p>If your team is building something like that, I'd love to hear from you.</p>
       <div class="hand" style="text-align:right;margin:6px 0 10px">— Taniksha ♡</div>
@@ -879,7 +925,7 @@ room.updateMatrixWorld(true);
 room.traverse((o) => {
   if (!o.isMesh) return;
   if (o.material && o.material.visible === false) { o.name = "nb_" + bakeMeshes.length + "_" + Math.random().toString(36).slice(2, 6); return; }
-  let inItem = false; for (let p = o; p; p = p.parent) if (p.userData.item) inItem = true;
+  let inItem = false; for (let p = o; p; p = p.parent) if (p.userData.item || p.userData.noBake) inItem = true;
   if (inItem || NO_BAKE.has(o) || Array.isArray(o.material) || !o.material.isMeshStandardMaterial) return;
   o.name = "bk_" + bakeMeshes.length; bakeMeshes.push(o);
 });
