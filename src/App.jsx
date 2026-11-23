@@ -7,6 +7,7 @@ import { Projects } from "./components/Projects";
 import { Skills } from "./components/Skills";
 import { AgentSection } from "./components/agent/AgentSection";
 import { Contact } from "./components/Contact";
+import { RoomPeek } from "./components/RoomPeek";
 import { profile } from "./data";
 
 // Fun mode (the 3D room) is its own chunk: three.js only downloads when someone switches to it.
@@ -44,6 +45,7 @@ export default function App() {
           <Projects />
           <AgentSection />
           <Skills />
+          <RoomPeek onFun={enterFun} />
           <Contact />
         </main>
         <footer className="mx-auto flex max-w-6xl flex-wrap justify-between gap-2 border-t border-line px-4 py-8 font-mono text-xs text-muted sm:px-6">

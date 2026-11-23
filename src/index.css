@@ -351,3 +351,12 @@ input, textarea, [contenteditable="true"] { cursor: text; }
   color: #e9e2ff;
   font: 700 1.6rem "Caveat", cursive;
 }
+
+/* Room peek: day still in light theme, night still in dark. */
+.peek-night { display: none; }
+:root[data-theme="dark"] .peek-day { display: none; }
+:root[data-theme="dark"] .peek-night { display: block; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .peek-day { display: none; }
+  :root:not([data-theme="light"]) .peek-night { display: block; }
+}
