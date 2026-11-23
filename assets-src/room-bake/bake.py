@@ -26,14 +26,16 @@ bake = [o for o in bpy.data.objects if o.type == "MESH" and o.name.startswith("b
 print("bake targets:", len(bake), "occluders:", sum(1 for o in bpy.data.objects if o.type == "MESH") - len(bake))
 
 # close the room (ceiling, right and front walls) so light bounces like a real room; never visible in the page
-wallmat = bpy.data.materials.new("closer"); wallmat.use_nodes = True
-wallmat.node_tree.nodes["Principled BSDF"].inputs["Base Color"].default_value = (*hexcol("#d8ccf2"), 1)
-def plane(name, loc, rot, sx, sy):
+def closer(col):
+    m = bpy.data.materials.new("closer"); m.use_nodes = True
+    m.node_tree.nodes["Principled BSDF"].inputs["Base Color"].default_value = (*hexcol(col), 1); return m
+CEIL, WALLS = closer("#f6f1ea"), closer("#d4e6c8")   # warm white ceiling, walls match the room's sage
+def plane(name, loc, rot, sx, sy, m):
     bpy.ops.mesh.primitive_plane_add(size=1, location=loc, rotation=rot); p = bpy.context.active_object
-    p.name = name; p.scale = (sx, sy, 1); p.data.materials.append(wallmat); return p
-plane("ceiling", (0.2, 0.0, 3.4), (0, 0, 0), 7.0, 5.4)
-plane("rightwall", (3.5, 0.0, 1.7), (0, math.pi / 2, 0), 3.4, 5.4)
-plane("frontwall", (0.2, -2.6, 1.7), (math.pi / 2, 0, 0), 7.0, 3.4)
+    p.name = name; p.scale = (sx, sy, 1); p.data.materials.append(m); return p
+plane("ceiling", (0.2, 0.0, 3.4), (0, 0, 0), 7.0, 5.4, CEIL)
+plane("rightwall", (3.5, 0.0, 1.7), (0, math.pi / 2, 0), 3.4, 5.4, WALLS)
+plane("frontwall", (0.2, -2.6, 1.7), (math.pi / 2, 0, 0), 7.0, 3.4, WALLS)
 
 import bmesh
 center = Vector((0.2, 0.0, 1.5)); removed = 0
