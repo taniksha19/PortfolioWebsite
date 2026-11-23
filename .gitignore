@@ -28,3 +28,6 @@ backend/.venv
 __pycache__
 .pytest_cache
 .env
+
+# Source asset packs (download separately)
+kenney_furniture-kit.zip

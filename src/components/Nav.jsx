@@ -17,7 +17,7 @@ function currentTheme() {
   return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
 }
 
-export function Nav() {
+export function Nav({ onFun }) {
   const [theme, setTheme] = useState(currentTheme);
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -56,6 +56,14 @@ export function Nav() {
               </li>
             ))}
           </ul>
+          {onFun && (
+            <button
+              onClick={onFun}
+              className="ml-1 rounded-full bg-accent px-3.5 py-2 text-sm font-semibold text-bg transition-all hover:opacity-90 active:scale-[0.96]"
+            >
+              Make it fun ✨
+            </button>
+          )}
           <button
             onClick={toggleTheme}
             className="rounded-full p-2.5 text-muted transition-all hover:text-ink active:scale-[0.94]"

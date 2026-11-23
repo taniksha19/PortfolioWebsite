@@ -339,3 +339,15 @@ input, textarea, [contenteditable="true"] { cursor: text; }
   .caret, .breathe::after, .skeleton::after,
   .agent-graph .edge-on, .agent-graph .node-active rect, .trace-line, .cite-flash { animation: none; }
 }
+
+/* Shown for a moment while the fun-mode chunk (three.js) downloads. */
+.fun-loading {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  background: #3a2d5c;
+  color: #e9e2ff;
+  font: 700 1.6rem "Caveat", cursive;
+}
