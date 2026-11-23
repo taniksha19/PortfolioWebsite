@@ -815,7 +815,7 @@ const VIEWS = {
   contact: {
     html: () => `<div class="letter"><div class="lstamp" aria-hidden="true">♡</div><div class="hand">Dear you,</div>
       <p>Thanks for stopping by my room. I'm graduating in December 2026 and looking for AI engineering roles: LLM systems, RAG, agents and MLOps.</p>
-      <p>If your team is building something like that, I'd love to hear from you.</p>
+      <p>If your team is building something like that, or even if you just want to talk anything AI, I'd love to connect.</p>
       <div class="hand sig">— Taniksha ♡</div>
       <div class="contact-row"><span class="mail" id="mail">datar.t@northeastern.edu</span><button class="btn" id="copy">Copy email</button></div>
       <div class="contact-row"><a class="btn ghost" href="https://linkedin.com/in/taniksha-datar" target="_blank" rel="noopener">LinkedIn</a><a class="btn ghost" href="https://github.com/taniksha19" target="_blank" rel="noopener">GitHub</a><button class="btn ghost dlres">Résumé (PDF)</button></div></div>`,
