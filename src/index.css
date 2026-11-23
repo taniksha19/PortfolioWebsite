@@ -347,7 +347,7 @@ input, textarea, [contenteditable="true"] { cursor: text; }
   z-index: 60;
   display: grid;
   place-items: center;
-  background: #3a2d5c;
+  background: #3b3135;
   color: #e9e2ff;
   font: 700 1.6rem "Caveat", cursive;
 }

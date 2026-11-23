@@ -96,11 +96,11 @@ def setup(mode):
         if o.type == "LIGHT": bpy.data.objects.remove(o, do_unlink=True)
     portal = light("portal", "AREA", win_c, 0, "#ffffff", shape="RECTANGLE", size=1.15, size_y=1.3)
     portal.data.cycles.is_portal = True; portal.rotation_euler = (math.radians(-90), 0, 0)   # emits along -y, into the room
-    ceil = light("ceilfill", "AREA", Vector((0.2, 0.3, 3.3)), FILL["ceil"][mode], "#f3ecff", shape="RECTANGLE", size=4.0, size_y=3.0)
-    front = light("frontfill", "AREA", Vector((0.0, -2.3, 1.8)), FILL["front"][mode], "#efe6ff" if mode == "day" else "#ffd9b0", shape="RECTANGLE", size=3.5, size_y=1.6)
+    ceil = light("ceilfill", "AREA", Vector((0.2, 0.3, 3.3)), FILL["ceil"][mode], "#fff4ea", shape="RECTANGLE", size=4.0, size_y=3.0)
+    front = light("frontfill", "AREA", Vector((0.0, -2.3, 1.8)), FILL["front"][mode], "#fff2e8" if mode == "day" else "#ffd9b0", shape="RECTANGLE", size=3.5, size_y=1.6)
     aim(front, Vector((0.0, 2.4, 1.2)))
     if mode == "day":
-        bg.inputs[0].default_value = (*hexcol("#f2b8d4"), 1); bg.inputs[1].default_value = 2.2
+        bg.inputs[0].default_value = (*hexcol("#f4dccd"), 1); bg.inputs[1].default_value = 2.2
         s = light("sun", "SUN", sunP, 7.0, "#ffd2c2", angle=math.radians(3)); aim(s, sunT)
         sp = light("lamp", "SPOT", lamp, 35, "#ffd79a", spot_size=math.radians(110), spot_blend=0.6, shadow_soft_size=0.03); aim(sp, lampT)
     else:

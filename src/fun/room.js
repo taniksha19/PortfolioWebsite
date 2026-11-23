@@ -42,7 +42,7 @@ renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 stage.prepend(renderer.domElement);
 
 const scene = new THREE.Scene();
-scene.background = new THREE.Color("#3a2d5c");
+scene.background = new THREE.Color("#3b3135");
 const camera = new THREE.PerspectiveCamera(45, 1.6, 0.05, 60);
 const pmrem = new THREE.PMREMGenerator(renderer);
 scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
@@ -86,7 +86,7 @@ function register(group, kind, label, fx) { group.traverse((o) => (o.userData.ow
 const KIT_NAMES = ["pottedPlant", "plantSmall1", "plantSmall2", "plantSmall3", "bookcaseOpenLow", "books", "computerMouse", "radio"];
 let kitFailed = false;
 const KIT_PALETTE = { wood: "#c39070", woodDark: "#93664a", plant: "#79ad8a", carpet: "#b9a0e0", carpetDarker: "#9b84c8", carpetWhite: "#fbf6ff",
-  metal: "#d9d4e6", metalMedium: "#6f6a86", metalDark: "#3e3a52", fur: "#d8a77e", lamp: "#ffe8b0", _defaultMat: "#efe8ff" };
+  metal: "#d9d4e6", metalMedium: "#6f6a86", metalDark: "#3e3a52", fur: "#d8a77e", lamp: "#ffe8b0", _defaultMat: "#f6efe8" };
 const kitSrc = {};
 const gltfLoader = new GLTFLoader();
 await Promise.all(KIT_NAMES.map((k) => gltfLoader.loadAsync(assetBase + "desk/models/" + k + ".glb").then((g) => { kitSrc[k] = g.scene; }).catch(() => { kitFailed = true; })));
@@ -105,14 +105,14 @@ function kit(name, h, over = {}) {
 }
 
 /* ---------------- room ---------------- */
-const WALL = "#d8ccf2", FLOOR = "#8a6f8f";
+const WALL = "#d4e6c8", FLOOR = "#b08f74";
 const room = new THREE.Group(); scene.add(room);
 const wallMat = mat(WALL);
 const floorTex = canvasTex(512, 512, (g, w, h) => {
   const ph = 64; for (let y = 0; y < h; y += ph) { const off = (y / ph % 2) * 170; for (let x = -off; x < w; x += 340) {
-    const c = 120 + Math.random() * 25; g.fillStyle = `rgb(${c + 15},${c - 15},${c + 20})`; g.fillRect(x, y, 340, ph);
-    for (let i = 0; i < 10; i++) { g.strokeStyle = `rgba(60,30,60,${Math.random() * .1})`; g.beginPath(); const yy = y + Math.random() * ph; g.moveTo(x, yy); g.lineTo(x + 340, yy + Math.random() * 4 - 2); g.stroke(); }
-    g.strokeStyle = "rgba(50,25,50,.35)"; g.lineWidth = 2; g.strokeRect(x, y, 340, ph); } }
+    const c = 150 + Math.random() * 22; g.fillStyle = `rgb(${c + 45},${c + 8},${c - 32})`; g.fillRect(x, y, 340, ph);
+    for (let i = 0; i < 10; i++) { g.strokeStyle = `rgba(110,70,35,${Math.random() * .12})`; g.beginPath(); const yy = y + Math.random() * ph; g.moveTo(x, yy); g.lineTo(x + 340, yy + Math.random() * 4 - 2); g.stroke(); }
+    g.strokeStyle = "rgba(95,60,30,.3)"; g.lineWidth = 2; g.strokeRect(x, y, 340, ph); } }
 });
 floorTex.wrapS = floorTex.wrapT = THREE.RepeatWrapping; floorTex.repeat.set(5, 4);
 const floor = new THREE.Mesh(new THREE.PlaneGeometry(10, 8), mat("#ffffff", { map: floorTex, roughness: .55, envMapIntensity: .25 })); floor.rotation.x = -Math.PI / 2; floor.receiveShadow = true; room.add(floor);
@@ -120,19 +120,19 @@ const floor = new THREE.Mesh(new THREE.PlaneGeometry(10, 8), mat("#ffffff", { ma
 const WZ = -2.55;
 const wallPart = (x0, x1, y0, y1) => { const m = box(x1 - x0, y1 - y0, 0.1, wallMat, 0); m.position.set((x0 + x1) / 2, (y0 + y1) / 2, WZ); m.castShadow = false; room.add(m); };
 wallPart(-4, -2.0, 0, 3.4); wallPart(-0.85, 4, 0, 3.4); wallPart(-2.0, -0.85, 0, 1.05); wallPart(-2.0, -0.85, 2.35, 3.4);
-const leftWall = box(0.1, 3.4, 5, mat("#cbbdea"), 0); leftWall.position.set(-3.2, 1.7, -0.1); room.add(leftWall);
-const skirting = box(8, 0.08, 0.03, mat("#efe8ff"), 0); skirting.position.set(0, 0.04, WZ + 0.06); room.add(skirting);
-const rug = cyl(1.1, 1.1, 0.01, mat("#b9a0d9")); rug.scale.z = 0.6; rug.position.set(0.3, 0.005, -1.2); room.add(rug);
+const leftWall = box(0.1, 3.4, 5, mat("#c7dabb"), 0); leftWall.position.set(-3.2, 1.7, -0.1); room.add(leftWall);
+const skirting = box(8, 0.08, 0.03, mat("#f6efe8"), 0); skirting.position.set(0, 0.04, WZ + 0.06); room.add(skirting);
+const rug = cyl(1.1, 1.1, 0.01, mat("#b5c9ad")); rug.scale.z = 0.6; rug.position.set(0.3, 0.005, -1.2); room.add(rug);
 
 // window frame + sill
-const frameMat = mat("#fbf8ff");
+const frameMat = mat("#fffaf4");
 const fr = (w, h, x, y) => { const m = box(w, h, 0.12, frameMat, 0.01); m.position.set(x, y, WZ + 0.02); room.add(m); };
 fr(1.27, 0.07, -1.425, 2.35); fr(1.27, 0.07, -1.425, 1.05); fr(0.07, 1.37, -2.0, 1.7); fr(0.07, 1.37, -0.85, 1.7); fr(0.04, 1.3, -1.425, 1.7);
 const sill = box(1.45, 0.05, 0.3, frameMat, 0.012); sill.position.set(-1.425, 1.03, WZ + 0.13); room.add(sill);
 
 // outside: sky + skyline + river
 const skyDay = canvasTex(512, 512, (g, w, h) => {
-  const gr = g.createLinearGradient(0, 0, 0, h); gr.addColorStop(0, "#7d6bd6"); gr.addColorStop(.45, "#d993c4"); gr.addColorStop(.75, "#f6ae9f"); gr.addColorStop(1, "#ffcfa8"); g.fillStyle = gr; g.fillRect(0, 0, w, h);
+  const gr = g.createLinearGradient(0, 0, 0, h); gr.addColorStop(0, "#8eb4e0"); gr.addColorStop(.45, "#efb9c6"); gr.addColorStop(.75, "#f6ae9f"); gr.addColorStop(1, "#ffcfa8"); g.fillStyle = gr; g.fillRect(0, 0, w, h);
   g.fillStyle = "rgba(255,235,245,.55)"; [[90, 120, 70], [330, 80, 90], [250, 190, 60]].forEach(([x, y, r]) => { g.beginPath(); g.ellipse(x, y, r, r * .25, 0, 0, 7); g.fill(); });
 });
 const skyNight = canvasTex(512, 512, (g, w, h) => {
@@ -153,10 +153,10 @@ function building(x, z, w, h, color, glass = false) {
   buildingMats.push(m);
   const b = new THREE.Mesh(new THREE.BoxGeometry(w, h, w), m); b.position.set(x, h / 2 - 0.5, z); scene.add(b); return b;
 }
-[[-6.6, -9.4, .7, 1.2, "#6f5a9e"], [-6.0, -9.0, .5, 1.6, "#7a63a8"], [-5.5, -9.6, .7, 1.0, "#655093"], [-4.4, -9.2, .5, 1.5, "#8470b6"], [-3.9, -9.5, .6, 1.1, "#6a5699"],
- [-3.3, -9.1, .5, 1.4, "#7660a6"], [-2.7, -9.6, .7, 0.9, "#6a5699"], [-6.9, -10, .9, 0.8, "#5d4a8a"], [-4.9, -10.2, .9, 0.9, "#5d4a8a"], [-3.6, -10.1, .8, 0.7, "#5d4a8a"]].forEach((b) => building(...b));
+[[-6.6, -9.4, .7, 1.2, "#7387aa"], [-6.0, -9.0, .5, 1.6, "#8092b4"], [-5.5, -9.6, .7, 1.0, "#687aa0"], [-4.4, -9.2, .5, 1.5, "#8a9bbd"], [-3.9, -9.5, .6, 1.1, "#6f81a6"],
+ [-3.3, -9.1, .5, 1.4, "#7d8fb3"], [-2.7, -9.6, .7, 0.9, "#6f81a6"], [-6.9, -10, .9, 0.8, "#62729a"], [-4.9, -10.2, .9, 0.9, "#62729a"], [-3.6, -10.1, .8, 0.7, "#62729a"]].forEach((b) => building(...b));
 building(-4.0, -8.6, .42, 2.5, "#8da0d6", true); // glass Hancock-style tower
-building(-5.6, -8.4, .5, 2.0, "#9c88c6"); const ant = cyl(.01, .01, .5, mat("#cfc4ea")); ant.position.set(-5.6, 1.75, -8.4); scene.add(ant);
+building(-5.6, -8.4, .5, 2.0, "#93a3c4"); const ant = cyl(.01, .01, .5, mat("#d5dbe8")); ant.position.set(-5.6, 1.75, -8.4); scene.add(ant);
 const river = new THREE.Mesh(new THREE.PlaneGeometry(16, 4), mat("#8f86c9", { roughness: .25, metalness: .2 })); river.rotation.x = -Math.PI / 2; river.position.set(-5, -0.45, -7); scene.add(river);
 for (let i = 0; i < 16; i++) { const t = sph(.2 + Math.random() * .1, mat("#5f7a6e")); t.position.set(-7.4 + i * .4, -0.3, -8.2 - Math.random() * .3); t.castShadow = false; scene.add(t); }
 
@@ -268,7 +268,7 @@ const deskTop = box(2.6, 0.06, 0.9, wood, 0.015); deskTop.position.set(0.35, DES
 [[-0.88, -2.38], [1.58, -2.38], [-0.88, -1.66], [1.58, -1.66]].forEach(([x, z]) => { const l = box(0.06, DESK_Y - 0.06, 0.06, wood, 0.01); l.position.set(x, (DESK_Y - 0.06) / 2, z); room.add(l); });
 const drawer = box(0.6, 0.18, 0.04, mat("#f3eee9"), .01); drawer.position.set(1.15, DESK_Y - 0.15, -1.6); room.add(drawer);
 const knob = sph(.015, mat("#e8c47c", { metalness: .5, roughness: .3 })); knob.position.set(1.15, DESK_Y - 0.15, -1.575); room.add(knob);
-const deskMat = box(1.0, 0.006, 0.5, mat("#e6dcf7"), 0.003); deskMat.position.set(0.25, DESK_Y + 0.003, -1.92); room.add(deskMat);
+const deskMat = box(1.0, 0.006, 0.5, mat("#f2d9de"), 0.003); deskMat.position.set(0.25, DESK_Y + 0.003, -1.92); room.add(deskMat);
 
 /* laptop */
 const laptop = new THREE.Group();
@@ -334,8 +334,8 @@ register(notebook, "notebook", "education & skills", (it, t) => { notebook.posit
 
 /* record player (experience) */
 const player = new THREE.Group();
-const pBase = box(.32, .055, .26, mat("#b89ad8", { roughness: .6 }), .012); pBase.position.y = .0275; player.add(pBase);
-const pTop = box(.3, .004, .24, mat("#efe8ff", { roughness: .5 }), .002); pTop.position.y = .056; player.add(pTop);
+const pBase = box(.32, .055, .26, mat("#a8cdbb", { roughness: .6 }), .012); pBase.position.y = .0275; player.add(pBase);
+const pTop = box(.3, .004, .24, mat("#f6efe8", { roughness: .5 }), .002); pTop.position.y = .056; player.add(pTop);
 const platter = cyl(.1, .1, .012, mat("#d9d3e6", { metalness: .5, roughness: .3 }), 48); platter.position.set(-.035, .064, 0); player.add(platter);
 const vinylTex = canvasTex(512, 512, (g, w) => {
   const c = w / 2; g.fillStyle = "#1d1828"; g.beginPath(); g.arc(c, c, c, 0, 7); g.fill();
@@ -397,7 +397,7 @@ register(puzzle, "games", "mini-games", (it, t) => { loose.forEach((p, i) => { p
 /* books */
 const books = new THREE.Group();
 [["#d16b7b", .27], ["#8e9bd8", .24], ["#e5b45a", .29], ["#6fae8f", .25], ["#b07ad6", .27], ["#7b8fc9", .23]].forEach(([c, h], i) => { const b = box(.045, h, .2, mat(c), .006); b.userData.h = h; b.position.set(i * .05, h / 2, 0); if (i === 5) { b.rotation.z = -.22; b.position.x += .03; b.position.y -= .01; } books.add(b); });
-const bookend = box(.015, .16, .14, mat("#efe8ff"), .004); bookend.position.set(-.035, .08, 0); books.add(bookend);
+const bookend = box(.015, .16, .14, mat("#f6efe8"), .004); bookend.position.set(-.035, .08, 0); books.add(bookend);
 books.position.set(1.28, DESK_Y, -2.28); room.add(books);
 register(books, "reading", "reading", (it, t) => { books.children.forEach((b, i) => { if (i === 2) b.position.y = b.userData.h / 2 + t * .06; }); });
 { const p = kit("plantSmall1", .24); p.position.set(1.58, DESK_Y, -2.3); p.rotation.y = .6; room.add(p); }
@@ -421,7 +421,7 @@ register(nimbus, "nimbus", "Nimbus", () => {});
 
 /* tall floor plant */
 const floorPlant = new THREE.Group();
-const fpot = cyl(.17, .13, .32, mat("#e8dcf5", { roughness: .6 })); fpot.position.y = .16; floorPlant.add(fpot);
+const fpot = cyl(.17, .13, .32, mat("#d98f6c", { roughness: .6 })); fpot.position.y = .16; floorPlant.add(fpot);
 const soil = cyl(.155, .155, .01, mat("#4a3528")); soil.position.y = .31; floorPlant.add(soil);
 const leafMat = mat("#6f9e84", { roughness: .7, side: THREE.DoubleSide }), leafMat2 = mat("#86b597", { roughness: .7, side: THREE.DoubleSide });
 for (let i = 0; i < 11; i++) {
@@ -433,7 +433,7 @@ for (let i = 0; i < 11; i++) {
 floorPlant.position.set(-2.25, 0, -2.25); floorPlant.scale.setScalar(.85); /* replaced by the kit plant below */
 const bigPlant = kit("pottedPlant", 1.05); bigPlant.position.set(-2.12, 0, -2.25); bigPlant.rotation.y = .5; room.add(bigPlant);
 /* low open bookcase under the window, dressed with books, a radio and a plant */
-const shelf = kit("bookcaseOpenLow", .56, { wood: "#ece2f8" }); shelf.position.set(-1.56, 0, -2.33); room.add(shelf);
+const shelf = kit("bookcaseOpenLow", .56, { wood: "#f6efe8" }); shelf.position.set(-1.56, 0, -2.33); room.add(shelf);
 [["books", .135, -1.69, .285, 0, { carpetDarker: "#d16b7b", carpetWhite: "#8e9bd8", plant: "#e5b45a" }], ["books", .135, -1.44, .285, Math.PI, { carpetDarker: "#6fae8f", carpetWhite: "#b07ad6", plant: "#e7a8c4" }],
  ["radio", .15, -1.68, .56, .15, { wood: "#e7a8c4", metalMedium: "#7d73a8" }], ["plantSmall3", .24, -1.36, .56, 0, {}]].forEach(([n, h, x, y, r, o]) => { const d = kit(n, h, o); if (n === "plantSmall3") d.visible = false; /* stays in the bake list so lightmap names still line up */ d.position.set(x, y, -2.33); d.rotation.y = r; room.add(d); });
 /* a pot of lilies: Taniksha's favourite flowers */
@@ -556,7 +556,7 @@ function curtain(x) {
   const g = new THREE.PlaneGeometry(.32, 1.75, 24, 1); const pos = g.attributes.position;
   for (let i = 0; i < pos.count; i++) pos.setZ(i, Math.sin(pos.getX(i) * 55) * .018);
   g.computeVertexNormals();
-  const m = new THREE.Mesh(g, mat("#f3e8ff", { side: THREE.DoubleSide, transparent: true, opacity: .82, roughness: 1 })); m.position.set(x, 1.62, WZ + 0.16); m.castShadow = true; room.add(m); return m;
+  const m = new THREE.Mesh(g, mat("#fbf2e8", { side: THREE.DoubleSide, transparent: true, opacity: .82, roughness: 1 })); m.position.set(x, 1.62, WZ + 0.16); m.castShadow = true; room.add(m); return m;
 }
 const curtains = [curtain(-2.3), curtain(-0.55)];
 const rod = cyl(.012, .012, 2.1, brass); rod.rotation.z = Math.PI / 2; rod.position.set(-1.43, 2.52, WZ + 0.16); room.add(rod);
@@ -576,7 +576,7 @@ const dust = new THREE.Points(dustGeo, new THREE.PointsMaterial({ size: .012, ma
 room.add(dust);
 
 /* ---------------- lights ---------------- */
-const hemi = new THREE.HemisphereLight("#e6dcff", "#8a6f8f", 0.95); scene.add(hemi);
+const hemi = new THREE.HemisphereLight("#fff1e4", "#b08f74", 0.95); scene.add(hemi);
 const sun = new THREE.DirectionalLight("#ffc9d6", 1.4); sun.position.set(-2.5, 3.2, -5); sun.target.position.set(0, 0.8, -1.5); scene.add(sun, sun.target);
 sun.castShadow = true; sun.shadow.mapSize.set(2048, 2048); Object.assign(sun.shadow.camera, { left: -3, right: 3, top: 3, bottom: -2, near: 1, far: 12 }); sun.shadow.bias = -0.0005; sun.shadow.radius = 5;
 const fill = new THREE.DirectionalLight("#c9b8ff", 0.5); fill.position.set(2, 3, 3); scene.add(fill);
@@ -931,7 +931,7 @@ room.traverse((o) => {
 });
 /* swap static meshes to unlit materials lit only by the Blender lightmaps; day and night crossfade */
 const LM_K = 4;   // lightmaps store value / LM_K
-const bakeU = { lmNight: { value: null }, uNight: { value: 0 }, kDay: { value: 0.75 }, kNight: { value: 1.3 } };
+const bakeU = { lmNight: { value: null }, uNight: { value: 0 }, kDay: { value: 0.85 }, lmTint: { value: new THREE.Vector3(0.9, 1.0, 1.1) }, kNight: { value: 1.3 } };
 let baked = false; window.__bakeU = bakeU;
 async function applyBake() {
   if (kitFailed || location.search.includes("export") || location.search.includes("nobake")) return 0;
@@ -949,7 +949,7 @@ async function applyBake() {
       Object.assign(sh.uniforms, bakeU);
       const a = "vec4 lightMapTexel = texture2D( lightMap, vLightMapUv );";
       if (!sh.fragmentShader.includes(a)) console.warn("lightmap chunk changed");
-      sh.fragmentShader = "uniform sampler2D lmNight; uniform float uNight, kDay, kNight;" + String.fromCharCode(10) + sh.fragmentShader.replace(a, "vec4 lightMapTexel = mix( texture2D( lightMap, vLightMapUv ) * kDay, texture2D( lmNight, vLightMapUv ) * kNight, uNight );");
+      sh.fragmentShader = "uniform sampler2D lmNight; uniform vec3 lmTint; uniform float uNight, kDay, kNight;" + String.fromCharCode(10) + sh.fragmentShader.replace(a, "vec4 lightMapTexel = mix( texture2D( lightMap, vLightMapUv ) * vec4( lmTint, 1.0 ) * kDay, texture2D( lmNight, vLightMapUv ) * kNight, uNight );");
     };
     bm.customProgramCacheKey = () => "baked-lm";
     m.geometry = g; m.material = bm; m.receiveShadow = false; n++;
@@ -1014,7 +1014,7 @@ function frame(now) {
   skyMatNight.opacity = n; bakeU.uNight.value = n; hemi.intensity = .95 - n * .7; sun.intensity = 1.4 - n * 1.25; fill.intensity = .5 - n * .38;
   spot.intensity = 2.2 + n * 0.8; lampFill.intensity = .25 + n * .25; screenLight.intensity = .06 + n * .1;
   buildingMats.forEach((m) => (m.emissiveIntensity = .35 + n * 1.6));
-  scene.background.set(n > .5 ? "#1a1430" : "#3a2d5c"); bloom.strength = .4 + n * .22;
+  scene.background.set(n > .5 ? "#1a1430" : "#3b3135"); bloom.strength = .4 + n * .22;
 
   // polaroids: wiggle on hover, peel off one by one and fly to the camera when the journey opens
   { const corkIt = cork.userData.item, dt = 1 / 60;

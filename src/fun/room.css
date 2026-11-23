@@ -25,7 +25,7 @@
 .fun-root .toggle button[aria-pressed="true"] { background: var(--accent); color: var(--bg); }
 .fun-root .snd { border: 1px solid var(--line); background: transparent; border-radius: 999px; padding: 7px 14px; cursor: pointer; font-size: .85rem; font-weight: 600; color: var(--muted); }
 .fun-root .snd[aria-pressed="true"] { color: var(--accent); border-color: var(--accent); }
-.fun-root .stage { position: relative; width: 100%; aspect-ratio: 16 / 10; border-radius: 22px; overflow: hidden; box-shadow: var(--shadow); background: #3a2d5c; touch-action: manipulation; }
+.fun-root .stage { position: relative; width: 100%; aspect-ratio: 16 / 10; border-radius: 22px; overflow: hidden; box-shadow: var(--shadow); background: #3b3135; touch-action: manipulation; }
 @media (max-width: 700px) {
   .fun-root .stage { aspect-ratio: 4 / 5; }
 }
@@ -40,14 +40,14 @@
 .fun-root .bubble.hide { opacity: 0; }
 .fun-root .hint { position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%); max-width: calc(100% - 24px); text-align: center; white-space: normal !important; font-size: .8rem; color: #efe9ff; background: rgba(30, 20, 60, .45); padding: 6px 12px; border-radius: 999px; pointer-events: none; transition: opacity .4s; white-space: nowrap; }
 html.fun-open, html.fun-open body { height: 100%; overflow: hidden; }
-.fun-root { padding: 0; background: #3a2d5c; }
+.fun-root { padding: 0; background: #3b3135; }
 .fun-root .wrap { max-width: none; display: block; }
 .fun-root .stage { position: fixed; inset: 0; width: 100%; height: 100dvh; aspect-ratio: auto; border-radius: 0; box-shadow: none; touch-action: none; }
 @media (max-width: 700px) {
   .fun-root .stage { aspect-ratio: auto; }
 }
 .fun-root .bar { position: fixed; top: 0; left: 0; right: 0; z-index: 10; padding: max(14px, env(safe-area-inset-top, 0px)) max(18px, env(safe-area-inset-right, 0px)) 14px max(18px, env(safe-area-inset-left, 0px));
-  background: linear-gradient(rgba(28,20,56,.45), rgba(28,20,56,0)); pointer-events: none; }
+  background: linear-gradient(rgba(45,32,36,.42), rgba(45,32,36,0)); pointer-events: none; }
 .fun-root .bar > * { pointer-events: auto; }
 .fun-root .brand { color: #fff; text-shadow: 0 1px 10px rgba(30,15,70,.6); }
 .fun-root .brand span { color: #e4dcff; }
