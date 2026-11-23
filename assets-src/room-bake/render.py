@@ -15,10 +15,10 @@ bpy.ops.import_scene.gltf(filepath=GLB)
 for o in list(bpy.data.objects):
     if o.type in ("LIGHT", "CAMERA") or o.name.startswith("nb_"): bpy.data.objects.remove(o, do_unlink=True)
 sc = bpy.context.scene
-# tiny light clips on the window corners export as see-through unlit boxes and render black; they are hidden in the page anyway
-for o in list(bpy.data.objects):
-    if o.type == "MESH" and o.active_material and not o.active_material.node_tree.nodes.get("Principled BSDF") and max(o.dimensions) < 0.035 and min(o.dimensions) > 0.025:
-        bpy.data.objects.remove(o, do_unlink=True)
+# the window frame is built from overlapping rounded bars; where they cross, one bar's front face sits just inside
+# the other and gets no light (black squares). Pull the long horizontal bars 2 mm toward the room.
+for o in bpy.data.objects:
+    if o.type == "MESH" and abs(o.dimensions.x - 1.27) < 0.01 and abs(o.dimensions.y - 0.12) < 0.01: o.location.y -= 0.002
 # a soft sunset sky behind the window (the page's skyline lives outside the exported room)
 def sky_plane(day):
     bpy.ops.mesh.primitive_plane_add(size=1, location=(-1.425, 3.3, 1.75), rotation=(math.pi / 2, 0, 0)); p = bpy.context.active_object; p.scale = (2.6, 2.4, 1)
@@ -72,7 +72,7 @@ cam.rotation_mode = "QUATERNION"; cam.rotation_quaternion = Quaternion((1, 0, 0)
 cam.data.sensor_fit = "VERTICAL"; cam.data.angle_y = math.radians(C["fov"]); cam.data.clip_start = 0.05
 
 sc.render.engine = "CYCLES"; sc.cycles.device = "CPU"; sc.cycles.samples = SAMPLES; sc.cycles.use_denoising = True
-sc.cycles.max_bounces = 6; sc.cycles.diffuse_bounces = 4
+sc.cycles.max_bounces = 6; sc.cycles.diffuse_bounces = 4; sc.cycles.transparent_max_bounces = 32
 sc.view_settings.view_transform = "AgX"; sc.view_settings.look = "AgX - Medium High Contrast" if "AgX - Medium High Contrast" in [i.identifier for i in sc.view_settings.bl_rna.properties["look"].enum_items] else "None"
 sc.render.image_settings.file_format = "PNG"
 for (w, h, tag) in [(1920, 1200, "hero"), (1200, 630, "og")]:
