@@ -269,8 +269,12 @@ let journeyT = 0;   // 0 = all pinned, grows while the journey is open
     const cup = cyl(.03, .03, .022, cupM, 28); cup.rotation.z = Math.PI / 2; cup.position.set(sd * .072, -.045, 0); hp.add(cup);
     const pad = cyl(.026, .026, .01, padM, 28); pad.rotation.z = Math.PI / 2; pad.position.set(sd * .057, -.045, 0); hp.add(pad);
   });
-  hp.scale.setScalar(1.35); hp.rotation.set(-.08, -.25, -.1); hp.position.set(.6, .075, .07); cork.add(hp);
-  const hook = sph(.012, mat("#cf6f93", { roughness: .4 }), 14); hook.position.set(.59, .17, .03); cork.add(hook);
+  hp.scale.setScalar(1.35); hp.rotation.set(-.08, -.25, -.1); hp.position.set(.53, .08, .07); cork.add(hp);
+  gltfLoader.loadAsync(assetBase + "desk/models/headphones.glb").then((gl) => {   // Blender model (assets-src/room-bake/headphones.py)
+    if (disposed) return; gl.scene.traverse((o) => { if (o.isMesh) { o.castShadow = true; o.material.envMapIntensity = .4; o.material.userData.noGlow = true; o.userData.owner = cork; } });
+    hp.clear(); hp.add(gl.scene);
+  }).catch(() => {});
+  const hook = sph(.012, mat("#cf6f93", { roughness: .4 }), 14); hook.position.set(.53, .175, .03); cork.add(hook);
 }
 /* a small paper plane pinned to the board, mid-flight */
 {
@@ -481,6 +485,11 @@ const eyeM = new THREE.MeshBasicMaterial({ color: "#2a2638" });
 [-.05, .05].forEach((x) => { const b = sph(.012, new THREE.MeshBasicMaterial({ color: "#ffb3d1", transparent: true, opacity: .85 }), 12); b.position.set(x, .068, .056); b.scale.set(1.3, .7, .4); nimbus.add(b); });
 const smile = new THREE.Mesh(new THREE.TorusGeometry(.012, .0025, 6, 16, Math.PI), eyeM); smile.rotation.z = Math.PI; smile.position.set(0, .07, .068); nimbus.add(smile);
 nimbus.position.set(-1.12, 1.055, WZ + 0.17); room.add(nimbus);
+gltfLoader.loadAsync(assetBase + "desk/models/nimbus.glb").then((gl) => {   // sculpted cloud body from Blender (assets-src/room-bake/nimbus.py)
+  if (disposed) return; let body = null; gl.scene.traverse((o) => { if (o.isMesh && !body) body = o; }); if (!body) return;
+  nimbus.children.filter((c) => c.material === cloudMat).forEach((c) => nimbus.remove(c));
+  const m = new THREE.Mesh(body.geometry, cloudMat); m.castShadow = true; m.userData.owner = nimbus; nimbus.add(m);
+}).catch(() => {});
 const eyes = nimbus.children.filter((c) => c.material === eyeM && c.geometry.type === "SphereGeometry");
 register(nimbus, "nimbus", "Nimbus", () => {});
 
@@ -524,6 +533,12 @@ const shelf = kit("bookcaseOpenLow", .56, { wood: "#f6efe8" }); shelf.position.s
     const bud = sph(1, mat("#eef4e6"), 10); bud.scale.set(.008, .025, .008); bud.position.set(x, .1 + h + .02, z); lil.add(bud); });
   for (let i = 0; i < 7; i++) { const lf = new THREE.Mesh(petalG, leafM); lf.scale.set(.008, .085, .002); const piv = new THREE.Group(); piv.position.y = .1; piv.rotation.y = i * .9; lf.rotation.x = .35 + (i % 3) * .12; piv.add(lf); lil.add(piv); }
   lil.scale.setScalar(1.2); lil.position.set(-1.36, .56, -2.33); room.add(lil);
+  // swap in the hand-modelled Blender lilies (assets-src/room-bake/lilies.py); the simple ones above stay if it fails to load
+  gltfLoader.loadAsync(assetBase + "desk/models/lilies.glb").then((gl) => {
+    if (disposed) return;
+    gl.scene.traverse((o) => { if (o.isMesh) { o.castShadow = o.receiveShadow = true; o.material.envMapIntensity = .3; } });
+    lil.clear(); lil.add(gl.scene);
+  }).catch(() => {});
 }
 /* mouse by the laptop, small speaker by the record player */
 const kMouse = kit("computerMouse", .028, { metalDark: "#f3a9c4" }); kMouse.position.set(0.78, DESK_Y + .006, -1.86); kMouse.rotation.y = .2; room.add(kMouse);
@@ -598,7 +613,7 @@ const face = new THREE.Mesh(new THREE.CircleGeometry(.145, 48), mat("#fff", { ma
 const hHand = box(.012, .075, .004, mat("#2a2638"), 0); hHand.geometry.translate(0, .03, 0); hHand.position.z = .024; clock.add(hHand);
 const mHand = box(.008, .11, .004, mat("#2a2638"), 0); mHand.geometry.translate(0, .045, 0); mHand.position.z = .027; clock.add(mHand);
 const sHand = box(.003, .12, .003, mat("#e0577f"), 0); sHand.geometry.translate(0, .045, 0); sHand.position.z = .03; clock.add(sHand);
-clock.position.set(-0.3, 2.22, WZ + 0.07); room.add(clock);
+clock.position.set(-0.12, 2.22, WZ + 0.07); room.add(clock);
 
 /* rain outside the window, plus drops running down the glass (fades in with the night) */
 const RAIN = 260, rainGeo = new THREE.BufferGeometry(), rainPos = new Float32Array(RAIN * 6), rainSeed = [];
@@ -1098,6 +1113,7 @@ if (location.search.includes("export")) window.__exportRoom = async () => {
   const glb = await new GLTFExporter().parseAsync(room, { binary: true, onlyVisible: true });
   let bin = ""; const u8 = new Uint8Array(glb); for (let i = 0; i < u8.length; i += 0x8000) bin += String.fromCharCode(...u8.subarray(i, i + 0x8000));
   return { glb: btoa(bin), count: bakeMeshes.length,
+    camera: { pos: camera.position.toArray(), quat: camera.quaternion.toArray(), fov: camera.fov, aspect: camera.aspect },
     lights: { lamp: v(spot), lampTarget: [spot.target.position.x, spot.target.position.y, spot.target.position.z], bulbs: bulbs.map((b) => v(b.s)), screen: v(screen), screenNormal: [n.x, n.y, n.z], sun: [sun.position.x, sun.position.y, sun.position.z], sunTarget: [sun.target.position.x, sun.target.position.y, sun.target.position.z] } };
 };
 
