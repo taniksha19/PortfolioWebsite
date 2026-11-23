@@ -364,15 +364,38 @@ register(player, "album", "experience", (it, t) => {
   notes.forEach((n) => { const k = (now * .45 + n.ph) % 1; n.sp.position.set(-.035 + Math.sin(k * 5 + n.ph * 7) * .05, .1 + k * .22, 0); n.sp.material.opacity = t * Math.sin(k * Math.PI); });
 });
 
-/* cat mug + steam */
+/* handmade mug: speckled cream glaze, berry dip with drips, a painted lily, latte art on top */
 const mug = new THREE.Group();
-const faceTex = canvasTex(512, 256, (g, w, h) => { g.fillStyle = "#f3e6d4"; g.fillRect(0, 0, w, h); const cx = w / 2, cy = h / 2 + 10;
-  g.fillStyle = "#2a2638"; g.beginPath(); g.arc(cx - 26, cy - 8, 7, 0, 7); g.arc(cx + 26, cy - 8, 7, 0, 7); g.fill(); g.strokeStyle = "#2a2638"; g.lineWidth = 4; g.beginPath(); g.moveTo(cx - 12, cy + 12); g.quadraticCurveTo(cx - 6, cy + 20, cx, cy + 12); g.quadraticCurveTo(cx + 6, cy + 20, cx + 12, cy + 12); g.stroke();
-  g.fillStyle = "#f4a3bf"; g.beginPath(); g.ellipse(cx - 44, cy + 8, 11, 6, 0, 0, 7); g.ellipse(cx + 44, cy + 8, 11, 6, 0, 0, 7); g.fill();
-  g.fillStyle = "#2a2638"; g.beginPath(); g.moveTo(cx - 46, 34); g.lineTo(cx - 30, 10); g.lineTo(cx - 14, 34); g.moveTo(cx + 14, 34); g.lineTo(cx + 30, 10); g.lineTo(cx + 46, 34); g.fill(); });
-const mugBody = cyl(.05, .046, .11, mat("#fff", { map: faceTex })); mugBody.rotation.y = Math.PI; mugBody.position.y = .055; mug.add(mugBody);
-const coffee = cyl(.046, .046, .005, mat("#6b4430")); coffee.position.y = .1; mug.add(coffee);
-const handle = new THREE.Mesh(new THREE.TorusGeometry(.03, .009, 10, 24), mat("#f3e6d4")); handle.position.set(.055, .06, 0); handle.castShadow = true; mug.add(handle);
+const BERRY = "#9a3d63";
+const faceTex = canvasTex(1024, 256, (g, w, h) => {
+  g.fillStyle = "#f5ede2"; g.fillRect(0, 0, w, h);
+  for (let i = 0; i < 900; i++) { g.fillStyle = `rgba(${90 + Math.random() * 40},${70 + Math.random() * 30},${60 + Math.random() * 30},${Math.random() * .35})`; g.fillRect(Math.random() * w, Math.random() * h, 1.6, 1.6); }
+  // berry glaze dipped over the rim, with uneven drips
+  const gr = g.createLinearGradient(0, 0, 0, 110); gr.addColorStop(0, "#7e3152"); gr.addColorStop(1, BERRY); g.fillStyle = gr;
+  g.beginPath(); g.moveTo(0, 0); g.lineTo(w, 0); let x = w;
+  while (x > 0) { const step = 34 + Math.random() * 44, base = 66 + Math.random() * 14; g.lineTo(x, base); if (Math.random() < .55) { const d = 26 + Math.random() * 50; g.lineTo(x - 7, base + d); g.arc(x - 14, base + d, 7, 0, Math.PI); g.lineTo(x - 21, base); } x -= step; }
+  g.lineTo(0, 72); g.closePath(); g.fill();
+  g.fillStyle = "rgba(255,255,255,.18)"; g.fillRect(0, 6, w, 5);   // glaze sheen
+  // a little painted lily on the front
+  const cx = w / 2, cy = 150; g.save(); g.translate(cx, cy); g.scale(1.7, 1.25); g.translate(-cx, -cy);
+  g.strokeStyle = "#5f9e86"; g.lineWidth = 4; g.lineCap = "round"; g.beginPath(); g.moveTo(cx, cy + 6); g.quadraticCurveTo(cx - 4, cy + 50, cx + 6, cy + 80); g.stroke();
+  g.fillStyle = "#6fae8f"; g.beginPath(); g.ellipse(cx + 18, cy + 56, 18, 6, -.6, 0, 7); g.fill();
+  for (let i = 0; i < 6; i++) { const ang = -Math.PI / 2 + (i - 2.5) * .42;
+    g.save(); g.translate(cx, cy); g.rotate(ang + Math.PI / 2); g.fillStyle = i % 2 ? "#fbd9e3" : "#ffffff"; g.strokeStyle = BERRY; g.lineWidth = 2;
+    g.beginPath(); g.ellipse(0, -24, 9, 24, 0, 0, 7); g.fill(); g.stroke(); g.restore(); }
+  g.fillStyle = "#c97a3a"; for (let i = 0; i < 4; i++) { g.beginPath(); g.arc(cx - 9 + i * 6, cy - 22 - (i % 2) * 5, 2.6, 0, 7); g.fill(); }
+  g.restore();
+});
+const latteTex = canvasTex(256, 256, (g, w, h) => {
+  const gr = g.createRadialGradient(w / 2, h / 2, 10, w / 2, h / 2, w / 2); gr.addColorStop(0, "#c08a5c"); gr.addColorStop(1, "#7a4a2e"); g.fillStyle = gr; g.fillRect(0, 0, w, h);
+  g.fillStyle = "#f6ead8"; g.beginPath(); const c = w / 2; g.moveTo(c, c + 46); g.bezierCurveTo(c - 70, c - 4, c - 36, c - 62, c, c - 26); g.bezierCurveTo(c + 36, c - 62, c + 70, c - 4, c, c + 46); g.fill();
+  g.strokeStyle = "rgba(246,234,216,.6)"; g.lineWidth = 5; g.beginPath(); g.arc(c, c, 92, 0, 7); g.stroke();
+});
+const glazeM = mat(BERRY, { roughness: .25, envMapIntensity: .7 });
+const mugBody = new THREE.Mesh(new THREE.CylinderGeometry(.052, .046, .105, 40, 1, true), mat("#fff", { map: faceTex, roughness: .4, envMapIntensity: .5, side: THREE.DoubleSide })); mugBody.castShadow = mugBody.receiveShadow = true; mugBody.rotation.y = Math.PI; mugBody.position.y = .0525; mug.add(mugBody);
+const rimRing = new THREE.Mesh(new THREE.TorusGeometry(.0505, .0035, 8, 40), glazeM); rimRing.rotation.x = Math.PI / 2; rimRing.position.y = .105; mug.add(rimRing);
+const coffeeSide = mat("#6b4430"), coffee = cyl(.048, .048, .004, [coffeeSide, mat("#fff", { map: latteTex, roughness: .6 }), coffeeSide], 40); coffee.rotation.y = .5; coffee.position.y = .097; mug.add(coffee);
+const handle = new THREE.Mesh(new THREE.TorusGeometry(.03, .011, 12, 28, Math.PI * 1.35), glazeM); handle.rotation.z = -Math.PI * .675 + Math.PI / 2; handle.position.set(.054, .055, 0); handle.castShadow = true; mug.add(handle);
 mug.position.set(0.98, DESK_Y, -2.05); mug.rotation.y = -0.25; mug.scale.setScalar(1.25); room.add(mug);
 const steam = []; for (let i = 0; i < 4; i++) { const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: softTex, transparent: true, depthWrite: false, opacity: 0 })); s.scale.setScalar(.05); mug.add(s); steam.push({ s, ph: i / 4 }); }
 /* a little LEGO stack (she loves LEGO) */
