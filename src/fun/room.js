@@ -419,10 +419,13 @@ const kMouse = kit("computerMouse", .028); kMouse.position.set(0.78, DESK_Y + .0
 /* framed photo of me -> about */
 const avatarURL = assetBase + "taniksha.png";
 const avatarImg = new Image(); avatarImg.src = avatarURL; await avatarImg.decode().catch(() => {});
+const photoImg = new Image(); photoImg.src = assetBase + "desk/me.jpg"; await photoImg.decode().catch(() => {});
 const photoTex = canvasTex(384, 480, (g, w, h) => { const gr = g.createLinearGradient(0, 0, 0, h); gr.addColorStop(0, "#e6dcfb"); gr.addColorStop(1, "#fbd9e8"); g.fillStyle = gr; g.fillRect(0, 0, w, h);
-  g.fillStyle = "rgba(255,255,255,.6)"; [[50, 70, 6], [330, 110, 4], [310, 50, 7], [40, 220, 4]].forEach(([x, y, r]) => { g.beginPath(); g.arc(x, y, r, 0, 7); g.fill(); });
-  // cover-fit a head-and-shoulders crop of the (tall, full-body) avatar so it fills the frame
-  if (avatarImg.naturalWidth) { const iw = avatarImg.naturalWidth, sw = iw * .94, sh = sw * h / w; g.drawImage(avatarImg, (iw - sw) / 2, 0, sw, sh, 0, h * .05, w, h); } });
+  if (photoImg.naturalWidth) { // real photo: cover-fit, zoomed toward head and shoulders
+    const iw = photoImg.naturalWidth, ih = photoImg.naturalHeight, s = Math.max(w / iw, h / ih) * 1.3, sw = w / s, sh = h / s;
+    g.drawImage(photoImg, iw * .49 - sw / 2, ih * .05, sw, sh, 0, 0, w, h);
+  } else if (avatarImg.naturalWidth) { // fallback: head-and-shoulders crop of the drawn avatar
+    const iw = avatarImg.naturalWidth, sw = iw * .94, sh = sw * h / w; g.drawImage(avatarImg, (iw - sw) / 2, 0, sw, sh, 0, h * .05, w, h); } });
 const photo = new THREE.Group(), photoLean = new THREE.Group();
 const pfMat = mat("#c39070", { roughness: .6 });
 const pfBody = box(.25, .31, .02, pfMat, .007); pfBody.position.y = .155; photoLean.add(pfBody);
