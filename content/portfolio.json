@@ -55,6 +55,13 @@
         "text": "My newest hobby, one piece at a time.",
         "art": "puzzle",
         "keywords": "hobby, hobbies, puzzles, games, free time"
+      },
+      {
+        "id": "lego",
+        "title": "LEGO",
+        "text": "I love LEGO, building it brick by brick.",
+        "art": "lego",
+        "keywords": "lego, legos, bricks, building sets, hobby, hobbies, free time"
       }
     ],
     "keywords": "hometown, where from, grew up, background, journey, family, moved, relocated, India, personal"
