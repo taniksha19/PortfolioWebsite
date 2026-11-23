@@ -513,3 +513,13 @@ html.fun-open, html.fun-open body { height: 100%; overflow: hidden; }
 .fun-root .piece.wiggle { animation: wiggle .45s ease; }
 @keyframes wiggle { 25% { transform: rotate(-10deg); } 50% { transform: rotate(8deg); } 75% { transform: rotate(-5deg); } }
 @media (prefers-reduced-motion: reduce) { .fun-root .piece, .fun-root .piece.wiggle { transition: none; animation: none; } }
+/* letter: one handwriting voice, every line sitting on the ruling (32px rhythm) */
+.fun-root .letter { padding: 32px 40px 32px; line-height: 32px; background: repeating-linear-gradient(transparent 0 31px, #ebe2e6 31px 32px), var(--p-paper); }
+.fun-root .letter .hand, .fun-root .letter p { line-height: 32px; margin: 0; }
+.fun-root .letter .hand { font-size: 1.7rem; }
+.fun-root .letter p { font-family: var(--font-hand); font-size: 1.5rem; font-weight: 500; color: var(--p-ink); max-width: none; }
+.fun-root .letter > p:first-of-type { margin-right: 64px; }
+.fun-root .letter .sig { text-align: right; margin-bottom: 32px; }
+.fun-root .letter .contact-row { margin-top: 0; min-height: 64px; align-content: center; }
+.fun-root .letter .mail { font-family: var(--font-body); font-weight: 600; font-size: .95rem; letter-spacing: 0; }
+@media (max-width: 640px) { .fun-root .letter { padding: 32px 22px; } .fun-root .letter p { font-size: 1.35rem; } }
