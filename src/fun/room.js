@@ -122,7 +122,15 @@ const wallPart = (x0, x1, y0, y1) => { const m = box(x1 - x0, y1 - y0, 0.1, wall
 wallPart(-4, -2.0, 0, 3.4); wallPart(-0.85, 4, 0, 3.4); wallPart(-2.0, -0.85, 0, 1.05); wallPart(-2.0, -0.85, 2.35, 3.4);
 const leftWall = box(0.1, 3.4, 5, mat("#c7dabb"), 0); leftWall.position.set(-3.2, 1.7, -0.1); room.add(leftWall);
 const skirting = box(8, 0.08, 0.03, mat("#f6efe8"), 0); skirting.position.set(0, 0.04, WZ + 0.06); room.add(skirting);
-const rug = cyl(1.1, 1.1, 0.01, mat("#b5c9ad")); rug.scale.z = 0.6; rug.position.set(0.3, 0.005, -1.2); room.add(rug);
+/* woven round rug: cream with blush, berry and honey rings */
+const rugTex = canvasTex(1024, 1024, (g, w) => {
+  const c = w / 2, R = w / 2; g.fillStyle = "#f6eee4"; g.fillRect(0, 0, w, w);
+  const ring = (r0, r1, col) => { g.fillStyle = col; g.beginPath(); g.arc(c, c, r1 * R, 0, 7); g.arc(c, c, r0 * R, 0, 7, true); g.fill(); };
+  ring(.9, 1, "#f2c9d2"); ring(.84, .87, "#b04d77"); ring(.74, .76, "#b04d77"); ring(.62, .66, "#e8b84a"); ring(.5, .58, "#f4d9dd"); ring(.26, .29, "#b04d77");
+  g.fillStyle = "#f2c9d2"; g.beginPath(); g.arc(c, c, .14 * R, 0, 7); g.fill();
+  for (let r = 6; r < R; r += 7) { g.strokeStyle = `rgba(120,80,60,${.05 + Math.random() * .05})`; g.lineWidth = 1.5; g.beginPath(); g.arc(c, c, r, 0, 7); g.stroke(); }   // woven coils
+});
+const rug = cyl(1.1, 1.1, 0.01, mat("#ffffff", { map: rugTex, roughness: .95 }), 64); rug.scale.z = 0.6; rug.position.set(0.3, 0.005, -1.2); room.add(rug);
 
 // window frame + sill
 const frameMat = mat("#fffaf4");
@@ -193,21 +201,43 @@ const corkTex = canvasTex(1024, 640, (g, w, h) => {
   // (now a real 3D polaroid) pol(150, 185, -.08, "Pune", "#ffb36b", "#f07c8c", (g) => { g.fillStyle = "#ffe6a0"; g.beginPath(); g.arc(0, 0, 26, 0, 7); g.fill(); g.fillStyle = "#6b3d6e"; g.fillRect(-68, 20, 136, 27); });
   // (now a real 3D polaroid) pol(345, 175, .06, "Boston", "#a99be6", "#f2b6cf", (g) => { g.fillStyle = "#4e3f80"; [[-60, 0, 22, 47], [-34, -30, 18, 77], [-12, -5, 24, 52], [16, -50, 16, 97], [36, -12, 26, 59]].forEach(([x, y, w, h]) => g.fillRect(x, y, w, h)); });
   // (now a real 3D polaroid) pol(560, 190, -.04, "first flight!", "#bfe3ff", "#e4d8ff", (g) => { g.strokeStyle = "#5a4b8a"; g.lineWidth = 3; g.beginPath(); g.moveTo(-40, 20); g.lineTo(30, -25); g.lineTo(-5, 5); g.closePath(); g.stroke(); g.setLineDash([6, 6]); g.beginPath(); g.moveTo(-45, 25); g.quadraticCurveTo(-60, 40, -30, 44); g.stroke(); g.setLineDash([]); });
-  const note = (x, y, rot, color, text) => {
-    g.save(); g.translate(x, y); g.rotate(rot); g.shadowColor = "rgba(0,0,0,.3)"; g.shadowBlur = 8; g.shadowOffsetY = 4; g.fillStyle = color; g.fillRect(-70, -60, 140, 120); g.shadowColor = "transparent";
-    g.fillStyle = "#3a2f55"; g.font = '700 30px "Caveat"'; g.textAlign = "center"; text.split("\n").forEach((l, i, a) => g.fillText(l, 0, (i - (a.length - 1) / 2) * 30 + 10));
-    g.fillStyle = "#6f8be0"; g.beginPath(); g.arc(0, -52, 8, 0, 7); g.fill(); g.restore();
+  // a lived-in collage: notes of different sizes and tilts, some pinned, some taped
+  const tape = (x, y, rot, col) => { g.save(); g.translate(x, y); g.rotate(rot); g.fillStyle = col; g.globalAlpha = .75; g.fillRect(-34, -11, 68, 22);
+    g.globalAlpha = .35; g.fillStyle = "#fff"; for (let k = -34; k < 34; k += 10) g.fillRect(k, -11, 4, 22); g.restore(); };
+  const note = (x, y, rot, color, text, { s = 1, hold = "pin", fs = 30 } = {}) => {
+    g.save(); g.translate(x, y); g.rotate(rot); g.scale(s, s); g.shadowColor = "rgba(0,0,0,.3)"; g.shadowBlur = 8; g.shadowOffsetY = 4; g.fillStyle = color; g.fillRect(-70, -60, 140, 120); g.shadowColor = "transparent";
+    g.fillStyle = "rgba(0,0,0,.06)"; g.beginPath(); g.moveTo(70, 40); g.lineTo(70, 60); g.lineTo(50, 60); g.fill();   // curled corner
+    g.fillStyle = "#3a2f55"; g.font = `700 ${fs}px "Caveat"`; g.textAlign = "center"; text.split("\n").forEach((l, i, arr) => g.fillText(l, 0, (i - (arr.length - 1) / 2) * fs + 10));
+    if (hold === "pin") { g.fillStyle = "#6f8be0"; g.beginPath(); g.arc(0, -52, 8, 0, 7); g.fill(); } g.restore();
+    if (hold === "tape") tape(x + Math.sin(rot) * 60 * s, y - Math.cos(rot) * 60 * s, rot - .1, "#f2b6cb");
   };
-  note(790, 165, .05, "#fff3a8", "MS CS\nDec '26");
-  note(150, 470, .04, "#cdf3e4", "LLMs, RAG\n& agents");
-  note(350, 480, -.05, "#ffd9ec", "open to\nAI roles!");
-  note(560, 470, .03, "#e4d8ff", "Pune →\nBoston");
-  note(800, 440, -.06, "#ffe0c2", "ask Nimbus\nanything ☁");
+  // red string from the Pune polaroid to the boarding pass, like a travel map
+  g.strokeStyle = "#c4384f"; g.lineWidth = 3; g.beginPath(); g.moveTo(175, 300); g.bezierCurveTo(300, 390, 520, 380, 632, 322); g.stroke();
+  g.fillStyle = "#c4384f"; [[175, 300], [632, 322]].forEach(([x, y]) => { g.beginPath(); g.arc(x, y, 7, 0, 7); g.fill(); });
+  // boarding-pass stub for the first flight
+  g.save(); g.translate(735, 318); g.rotate(.1); g.shadowColor = "rgba(0,0,0,.3)"; g.shadowBlur = 8; g.shadowOffsetY = 4;
+  g.fillStyle = "#fdf7ee"; g.fillRect(-105, -40, 210, 80); g.shadowColor = "transparent";
+  g.fillStyle = "#b04d77"; g.fillRect(-105, -40, 210, 16); g.fillStyle = "#fff"; g.font = '600 12px "DM Mono", monospace'; g.textAlign = "left"; g.fillText("BOARDING PASS", -96, -28);
+  g.fillStyle = "#3a2f55"; g.font = '700 30px "Outfit", sans-serif'; g.fillText("PNQ", -94, 14); g.fillText("BOS", 26, 14);
+  g.font = '700 22px "Outfit"'; g.fillText("✈", -18, 12); g.font = '500 12px "DM Mono", monospace'; g.fillStyle = "#6b6680"; g.fillText("SEAT 1st flight", -94, 32);
+  g.setLineDash([4, 4]); g.strokeStyle = "#c9bfae"; g.beginPath(); g.moveTo(70, -24); g.lineTo(70, 40); g.stroke(); g.setLineDash([]);
+  for (let k = 0; k < 9; k++) { g.fillStyle = "#3a2f55"; g.fillRect(78 + k * 2.6, -14 + (k % 3), 1.4, 40); }
+  g.restore(); tape(735, 276, .05, "#bfe0cf");
+  note(785, 150, .1, "#fff3a8", "MS CS\nDec '26", { s: .92 });
+  note(125, 462, -.09, "#cdf3e4", "LLMs, RAG\n& agents", { hold: "tape" });
+  note(318, 500, .08, "#ffd9ec", "open to\nAI roles!", { s: 1.05 });
+  note(525, 470, -.04, "#fdf7ee", "to-do:\n✓ ship the agent\n✓ graduate Dec '26\n☐ next role", { s: 1.18, fs: 21, hold: "tape" });
+  note(870, 470, .06, "#ffe0c2", "ask Nimbus\nanything ☁", { s: .95 });
+  // doodles straight on the cork
+  g.strokeStyle = "rgba(255,250,240,.75)"; g.lineWidth = 3; g.lineCap = "round";
+  const star = (x, y, r) => { g.beginPath(); for (let k = 0; k < 4; k++) { const a = k * Math.PI / 2; g.moveTo(x, y); g.lineTo(x + Math.cos(a) * r, y + Math.sin(a) * r); } g.stroke(); };
+  star(640, 110, 9); star(455, 585, 7); star(985, 360, 8);
+  g.beginPath(); g.moveTo(668, 585); g.bezierCurveTo(652, 568, 640, 592, 668, 606); g.bezierCurveTo(696, 592, 684, 568, 668, 585); g.stroke();
 });
 const POLS = [
-  { px: 150, py: 185, rot: -.08, cap: "Pune", c1: "#ffb36b", c2: "#f07c8c", art: (g) => { g.fillStyle = "#ffe6a0"; g.beginPath(); g.arc(0, 0, 26, 0, 7); g.fill(); g.fillStyle = "#6b3d6e"; g.fillRect(-68, 20, 136, 27); } },
-  { px: 345, py: 175, rot: .06, cap: "Boston", c1: "#a99be6", c2: "#f2b6cf", art: (g) => { g.fillStyle = "#4e3f80"; [[-60, 0, 22, 47], [-34, -30, 18, 77], [-12, -5, 24, 52], [16, -50, 16, 97], [36, -12, 26, 59]].forEach(([x, y, w, h]) => g.fillRect(x, y, w, h)); } },
-  { px: 560, py: 190, rot: -.04, cap: "first flight!", c1: "#bfe3ff", c2: "#e4d8ff", art: (g) => { g.strokeStyle = "#5a4b8a"; g.lineWidth = 3; g.beginPath(); g.moveTo(-40, 20); g.lineTo(30, -25); g.lineTo(-5, 5); g.closePath(); g.stroke(); g.setLineDash([6, 6]); g.beginPath(); g.moveTo(-45, 25); g.quadraticCurveTo(-60, 40, -30, 44); g.stroke(); g.setLineDash([]); } }
+  { px: 160, py: 195, rot: -.15, cap: "Pune", c1: "#ffb36b", c2: "#f07c8c", art: (g) => { g.fillStyle = "#ffe6a0"; g.beginPath(); g.arc(0, 0, 26, 0, 7); g.fill(); g.fillStyle = "#6b3d6e"; g.fillRect(-68, 20, 136, 27); } },
+  { px: 345, py: 172, rot: .1, cap: "Boston", c1: "#a99be6", c2: "#f2b6cf", art: (g) => { g.fillStyle = "#4e3f80"; [[-60, 0, 22, 47], [-34, -30, 18, 77], [-12, -5, 24, 52], [16, -50, 16, 97], [36, -12, 26, 59]].forEach(([x, y, w, h]) => g.fillRect(x, y, w, h)); } },
+  { px: 548, py: 205, rot: -.06, cap: "first flight!", c1: "#bfe3ff", c2: "#e4d8ff", art: (g) => { g.strokeStyle = "#5a4b8a"; g.lineWidth = 3; g.beginPath(); g.moveTo(-40, 20); g.lineTo(30, -25); g.lineTo(-5, 5); g.closePath(); g.stroke(); g.setLineDash([6, 6]); g.beginPath(); g.moveTo(-45, 25); g.quadraticCurveTo(-60, 40, -30, 44); g.stroke(); g.setLineDash([]); } }
 ];
 const cork = new THREE.Group();
 const corkBoard = box(1.3, 0.81, 0.04, [mat("#7a5638"), mat("#7a5638"), mat("#7a5638"), mat("#7a5638"), mat("#fff", { map: corkTex }), mat("#7a5638")], 0);
