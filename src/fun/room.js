@@ -588,12 +588,42 @@ const trickles = []; for (let i = 0; i < 9; i++) {
 
 /* curtains */
 function curtain(x) {
-  const g = new THREE.PlaneGeometry(.32, 1.75, 24, 1); const pos = g.attributes.position;
+  const g = new THREE.PlaneGeometry(.32, 1.75, 24, 20); const pos = g.attributes.position;
   for (let i = 0; i < pos.count; i++) pos.setZ(i, Math.sin(pos.getX(i) * 55) * .018);
   g.computeVertexNormals();
-  const m = new THREE.Mesh(g, mat("#fbf2e8", { side: THREE.DoubleSide, transparent: true, opacity: .82, roughness: 1 })); m.position.set(x, 1.62, WZ + 0.16); m.castShadow = true; room.add(m); return m;
+  const rest = Float32Array.from(pos.array);
+  const m = new THREE.Mesh(g, mat("#fbf2e8", { side: THREE.DoubleSide, transparent: true, opacity: .82, roughness: 1 })); m.position.set(x, 1.62, WZ + 0.16); m.castShadow = true;
+  m.userData.live = true; m.userData.cloth = { rest, sx: 0, sz: 0, vx: 0, vz: 0, ripples: [], dirty: false, last: 0 }; room.add(m); return m;
 }
 const curtains = [curtain(-2.3), curtain(-0.55)];
+function pokeCurtain(c, point, strength, side) {
+  const cl = c.userData.cloth, lp = c.worldToLocal(point.clone());
+  cl.vz -= strength * 1.3; cl.vx += side * strength * .9;
+  if (!reduce) { cl.ripples.push({ x: lp.x, y: lp.y, t0: performance.now() / 1000, a: strength * .045 }); if (cl.ripples.length > 6) cl.ripples.shift(); }
+}
+let clothT = 0;
+function updateCurtains() {
+  const now = performance.now() / 1000, dt = Math.min(.05, now - (clothT || now)); clothT = now;
+  curtains.forEach((c) => {
+    const cl = c.userData.cloth;
+    cl.vx += (-28 * cl.sx - 3 * cl.vx) * dt; cl.sx += cl.vx * dt;
+    cl.vz += (-28 * cl.sz - 3 * cl.vz) * dt; cl.sz += cl.vz * dt;
+    cl.ripples = cl.ripples.filter((r) => now - r.t0 < 2.6);
+    const active = Math.abs(cl.sx) + Math.abs(cl.sz) + Math.abs(cl.vx) + Math.abs(cl.vz) > 2e-4 || cl.ripples.length > 0;
+    if (!active && !cl.dirty) return;
+    const pos = c.geometry.attributes.position, b = cl.rest, H = 1.75;
+    for (let k = 0; k < pos.count; k++) {
+      const x = b[k * 3], y = b[k * 3 + 1], z = b[k * 3 + 2], h = (H / 2 - y) / H, hh = h * h;
+      let dz = Math.max(-.13, cl.sz * .45 * hh), dx = cl.sx * .35 * hh;
+      for (const r of cl.ripples) {
+        const age = now - r.t0, d = Math.hypot(x - r.x, (y - r.y) * .7);
+        dz += r.a * Math.sin(d * 26 - age * 8) * Math.exp(-d * 4.5) * Math.exp(-age * 2) * Math.min(1, age * 8) * (.5 + h);
+      }
+      pos.setXYZ(k, x + dx, y - Math.abs(dx) * .15 * hh, z * (1 + Math.min(1.2, Math.abs(cl.sz) * 2)) + dz);
+    }
+    pos.needsUpdate = true; c.geometry.computeVertexNormals(); cl.dirty = active;
+  });
+}
 const rod = cyl(.012, .012, 2.1, brass); rod.rotation.z = Math.PI / 2; rod.position.set(-1.43, 2.52, WZ + 0.16); room.add(rod);
 
 /* pen cup + pencils, sticky pad */
@@ -660,6 +690,8 @@ function pick(e) {
 }
 on(stage, "pointermove", (e) => {
   if (focused || tween) return; ptrIn = true; hovered = pick(e);
+  if (!hovered) { const ch = ray.intersectObjects(curtains)[0];
+    if (ch && performance.now() - ch.object.userData.cloth.last > 160) { ch.object.userData.cloth.last = performance.now(); pokeCurtain(ch.object, ch.point, .55, Math.sign(e.movementX || 0)); } }
   stage.style.cursor = hovered ? "pointer" : "default";
   if (hovered) { const r = stage.getBoundingClientRect(); whisper.textContent = hovered.label; whisper.style.left = e.clientX - r.left + "px"; whisper.style.top = e.clientY - r.top + "px"; if (!showTags) whisper.classList.add("on"); }
   else whisper.classList.remove("on");
@@ -672,7 +704,8 @@ on(stage, "pointermove", (e) => {
   if (dragged) { panX = Math.min(PAN_MAX, Math.max(PAN_MIN, drag.p - dx * 2.6 / stage.clientWidth)); $("#hint").style.opacity = 0; }
 });
 on(stage, "pointerleave", () => { hovered = null; ptrIn = false; whisper.classList.remove("on"); mouse.x = mouse.y = 0; });
-on(stage, "click", (e) => { if (dragged) { dragged = false; return; } const it = pick(e); if (it) activate(it); });
+on(stage, "click", (e) => { if (dragged) { dragged = false; return; } const it = pick(e); if (it) return activate(it);
+  const ch = ray.intersectObjects(curtains)[0]; if (ch) { pokeCurtain(ch.object, ch.point, 1.3, ch.point.x < ch.object.position.x ? -1 : 1); whoosh(true); } });
 function activate(it) {
   if (focused || tween) return;
   $("#hint").style.opacity = 0;
@@ -1008,6 +1041,7 @@ async function applyBake() {
   bakeU.lmNight.value = nite;
   let n = 0;
   bakeMeshes.forEach((m) => {
+    if (m.userData.live) return;
     const src = gl.scene.getObjectByName(m.name); if (!src || !src.isMesh) return;
     const g = src.geometry; if (!g.attributes.uv1) return;
     const om = m.material;
@@ -1113,6 +1147,7 @@ function frame(now) {
     dustPos[i * 3] = -0.55 + a * .75 + Math.sin(k * 3 + ph) * .04; dustPos[i * 3 + 1] = DESK_Y + .1 + ((b + k) % 1) * .6; dustPos[i * 3 + 2] = -2.3 + c * .45 + Math.cos(k * 2 + ph) * .03; }
   dustGeo.attributes.position.needsUpdate = true; dust.material.opacity = .45 + n * .45;
   if (!reduce) curtains.forEach((c, i) => (c.rotation.y = Math.sin(t * .6 + i) * .03));
+  updateCurtains();
 
   if (snd.crackleGain) { const rec = interactive.find((i) => i.kind === "album"); snd.crackleGain.gain.value += ((rec ? Math.max(rec.hover, rec.openAmt) : 0) * .9 - snd.crackleGain.gain.value) * .1; }
   if (hovered !== lastHover) { if (hovered) blip(1200 + interactive.indexOf(hovered) * 90, .05, .025); lastHover = hovered; }
